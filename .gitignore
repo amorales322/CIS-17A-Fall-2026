@@ -1,1 +1,5 @@
 cmake-build-debug/*
+main.cpp
+scratchWork.cpp
+*.pdf
+*.zip
