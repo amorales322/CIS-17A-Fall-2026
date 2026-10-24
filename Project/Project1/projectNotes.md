@@ -3,7 +3,7 @@
 ## Structures
 
 ```c++
-struct charAry {
+struct Array {
     unsigned char *data;
     unsigned int size;
     unsigned int utilSze;
@@ -44,12 +44,12 @@ struct piece {
     bool enPasnt;
 
     // Valid moves that the piece can go to, including capture positions. For the king, this is any safe position it can move to
-    charAry *vldMove;
+    Array *vldMove;
     
     // King Variables
     bool inCheck;
     // Path capture piece has to king - used for piece iterposer calculation function to determine if any piece can get in the way and stop the check
-    charAry *capPth;
+    Array *capPth;
 };
 ```
 
@@ -66,18 +66,18 @@ struct piece {
     bool deadBrd(board *board);
 
     // Piece Interposing Calculation Function
-    bool pceIntr(board *board, const unsigned char kingPos, const unsigned char tgtPos, const charAry * const capPath);
+    bool pceIntr(board *board, const unsigned char kingPos, const unsigned char tgtPos, const Array * const capPath);
 
     // Used for the king, calculates if the specified space is safe by using the move calculation functions to determine if the king is able to move to this space
     bool sfeSpce(board *board, const unsigned char tgtPos);
 
     // Move Calculation Functions
-    void kingMov(bool rtrPcLc, const unsigned char initPos, charAry *data);
-    void lineMov(bool rtrPcLc, const unsigned char initPos, charAry *data);
-    void diagMov(bool rtrPcLc, const unsigned char initPos, charAry *data);
-    void knitMov(bool rtrPcLc, const unsigned char initPos, charAry *data);
-    void pawnMov(bool isFirstMove, bool enPasnt, bool rtrPcLc, const unsigned char initPos, charAry *data);
-    void castle(bool rtrPcLc, const unsigned char initPos, charAry *data)
+    void kingMov(bool rtrPcLc, const unsigned char initPos, Array *data);
+    void lineMov(bool rtrPcLc, const unsigned char initPos, Array *data);
+    void diagMov(bool rtrPcLc, const unsigned char initPos, Array *data);
+    void knitMov(bool rtrPcLc, const unsigned char initPos, Array *data);
+    void pawnMov(bool isFirstMove, bool enPasnt, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void castle(bool rtrPcLc, const unsigned char initPos, Array *data)
 
     void mvePce(const unsigned char a, const unsigned char b); 
 
@@ -85,7 +85,7 @@ struct piece {
     unsigned char getMove();
 
     // Move verification function
-    bool vldMove(board *board, const unsigned char tgtMove, const charAry * const vldMves)
+    bool vldMove(board *board, const unsigned char tgtMove, const Array * const vldMves)
 
     // Function to promote piece
     void pmtePce(board *board, const unsigned char tgtPce);
@@ -98,22 +98,22 @@ struct piece {
     void sveGame(board *board, fstream &file);
 
     // Allocater Funcitons
-    charAry *alloc(const unsigned int size*)
+    Array *alloc(const unsigned int size)
     board *initBrd(bool fromFile, fstream &file);
     board *initPlyr(bool fromFile, fstream &file);
     player *newPlyr()
 
     // Append Functions
-    void appDta(charAry *target, const unsigned char input);
-    void appDta(charAry *target, charAry *from, bool dstryFm);
+    void appDta(Array *target, const unsigned char input);
+    void appDta(Array *target, Array *from, bool dstryFm = true);
 
     // Resize Functions
     // 1. If the new capacity is not specified, the size increases by 1. 
-    // 2. Does nothing if the new specified capacity is less than the current size, does not truncate data
-    void resize(charAry *array, int newCap = -1);
+    // 2. Does nothing if the new specified capacity is less than or equal to the current size, does not truncate data
+    void resize(Array *array, int newCap = -1);
 
     // Deallocator Functions
-    void dealloc(charAry *array);
+    void dealloc(Array *array);
     void dealloc(board *board)
     void dealloc(player *player);
 ```
@@ -199,7 +199,7 @@ struct piece {
 
 ### Calculation Functions
 
-1. kingMov(bool rtrPcLc, const unsigned char initPos, charAry *data)
+1. kingMov(bool rtrPcLc, const unsigned char initPos, Array *data)
     * Calculates moves for surrounding places
 2. lineMov(bool rtrPcLc, const unsigned char initPos)
     * Calculates moves for vertical and horizontal places
