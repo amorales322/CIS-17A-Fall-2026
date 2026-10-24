@@ -35,6 +35,48 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+void drawBrd(const Board *const board) {
+    cout << "     a   b   c   d   e   f   g   h\n";
+    for (int row{0}; row < board->HORZNSZ; row++) {
+        cout << "   +---+---+---+---+---+---+---+---+";
+        cout << " " << row + 1 << " |";
+        for (int col{0}; col < board->VERTSZE; col++) {
+            if (!board->board[row][col].empty) {
+                cout << ' ';
+                switch (board->board[row][col].pieceID) {
+                    case KING:
+                        cout << (board->board[row][col].isWhite ? 'K' : 'k');
+                        break;
+                    case QUEEN:
+                        cout << (board->board[row][col].isWhite ? 'Q' : 'q');
+                        break;
+                    case ROOK:
+                        cout << (board->board[row][col].isWhite ? 'R' : 'r');
+                        break;
+                    case BISHOP:
+                        cout << (board->board[row][col].isWhite ? 'B' : 'b');
+                        break;
+                    case KNIGHT:
+                        cout << (board->board[row][col].isWhite ? 'N' : 'n');
+                        break;
+                    case PAWN:
+                        cout << (board->board[row][col].isWhite ? 'P' : 'p');
+                        break;
+                    default:
+                        cout << ' ';
+                }
+                cout << " |";
+            } else
+                cout << " * |";
+        }
+    }
+    cout << "   +---+---+---+---+---+---+---+---+\n\n";
+}
+
+void clrScrn() {
+    cout << "\033[H\033[2J";
+}
+
 Array *alloc(const unsigned int size) {
     Array *array = new Array;
     array->size = size;
@@ -53,6 +95,7 @@ Player *newPlyr() {
     getline(cin, player->name);
     while (player->name.length() > 35) {
         cout << "Your name is too long. Enter a shorter name: ";
+        getline(cin, player->name);
     }
 
     return player;
@@ -93,8 +136,8 @@ void dealloc(Array *array) {
 }
 
 void dealloc(Board *board) {
-    for (unsigned int i{0}; i < board->vertSze * board->horznSz; i++)
-        dealloc(*(board->board + i / board->horznSz) + i % board->horznSz);
+    for (unsigned int i{0}; i < board->VERTSZE * board->HORZNSZ; i++)
+        dealloc(*(board->board + i / board->VERTSZE) + i % board->HORZNSZ);
 }
 
 void dealloc(Player *player) {

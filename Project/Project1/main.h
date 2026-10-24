@@ -35,8 +35,8 @@ struct Piece {
 };
 
 struct Board {
-    const unsigned int vertSze{8};
-    const unsigned int horznSz{8};
+    const unsigned int VERTSZE{8};
+    const unsigned int HORZNSZ{8};
     Piece **board;
 
     Player *white;
