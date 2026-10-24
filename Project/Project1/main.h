@@ -52,6 +52,9 @@ struct Board {
     bool deadBrd;
 };
 
+Array *alloc(unsigned int);
+Player *newPlyr();
+
 void appDta(Array *, unsigned char);
 void appDta(Array *, Array *, bool = true);
 

@@ -43,6 +43,21 @@ Array *alloc(const unsigned int size) {
     return array;
 }
 
+Player *newPlyr() {
+    Player *player = new Player;
+    player->nWins = 0;
+    player->nLoss = 0;
+
+    cout << "Enter your name (35 Characters or Less): ";
+    cin.ignore();
+    getline(cin, player->name);
+    while (player->name.length() > 35) {
+        cout << "Your name is too long. Enter a shorter name: ";
+    }
+
+    return player;
+}
+
 void appDta(Array *array, unsigned char newDta) {
     if (array->utilSze >= array->size)
         resize(array);
