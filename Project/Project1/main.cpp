@@ -35,6 +35,34 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+void pmtePce(Board *const board, const unsigned char tgtPce) {
+    string usrChce;
+    Piece *target = *(board->board + tgtPce / board->VERTSZE) + tgtPce % board->HORZNSZ;
+    cout << "Your pawn is able to promote! Which piece would you like to promote it with: ";
+    cout << "1. Queen\n";
+    cout << "2. Rook\n";
+    cout << "3. Knight\n";
+    cout << "4. Bishop\n";
+
+    cout << "Enter Option: ";
+    cin >> usrChce;
+    while (usrChce != "Queen" && usrChce != "Rook" && usrChce != "Knight" && usrChce != "Bishop") {
+        cout << "Invalid choice, enter new choice: ";
+        cin >> usrChce;
+    }
+
+    target->enPasnt = false;
+    target->fstMove = false;
+    if (usrChce == "Queen")
+        target->pieceID = QUEEN;
+    else if (usrChce == "Rook")
+        target->pieceID = ROOK;
+    else if (usrChce == "Knight")
+        target->pieceID = KNIGHT;
+    else if (usrChce == "Bishop")
+        target->pieceID = BISHOP;
+}
+
 void drawBrd(const Board *const board) {
     cout << "     a   b   c   d   e   f   g   h\n";
     for (int row{0}; row < board->HORZNSZ; row++) {

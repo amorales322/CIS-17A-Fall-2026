@@ -52,6 +52,8 @@ struct Board {
     bool deadBrd;
 };
 
+void pmtePce(Board *, unsigned char);
+
 Array *alloc(unsigned int);
 Player *newPlyr();
 
