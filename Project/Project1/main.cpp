@@ -7,6 +7,7 @@
 
 // System Libraries
 #include <iostream> // Input Output Library
+#include <cctype>
 using namespace std;
 
 // User Libraries
@@ -33,6 +34,37 @@ int main(int argc, char **argv) {
 
     // Exit the Program
     return 0;
+}
+
+void mvePce(Board *board, const unsigned char a, const unsigned char b) {
+    Piece *tmp(board->board[a]);
+    board->board[a] = board->board[b];
+    board->board[b] = tmp;
+}
+
+unsigned char getInpt() {
+    string input{};
+    cin >> input;
+    while (input.length() != 2) {
+        cout << "Invalid board coordinate. Enter new board coordinate: ";
+        cin >> input;
+    }
+    while (toupper(input[0]) > 'H' || toupper(input[0]) < 'A' || input[1] > '8' || input[1] < '1') {
+        cout << "Invalid board coordinate. Enter new board coordinate: ";
+        cin >> input;
+        while (input.length() != 2) {
+            cout << "Invalid board coordinate. Enter new board coordinate: ";
+            cin >> input;
+        }
+    }
+    return (toupper(input[0]) - 64) + (input[1] - 48);
+}
+
+bool vldMove(const unsigned char tgtMove, const Array *const vldMves) {
+    for (int i{0}; i < vldMves->utilSze; i++)
+        if (vldMves->data[i] == tgtMove)
+            return true;
+    return false;
 }
 
 void pmtePce(Board *const board, const unsigned char tgtPce) {

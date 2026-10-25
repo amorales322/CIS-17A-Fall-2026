@@ -79,13 +79,13 @@ struct piece {
     void pawnMov(bool isFirstMove, bool enPasnt, bool rtrPcLc, const unsigned char initPos, Array *data);
     void castle(bool rtrPcLc, const unsigned char initPos, Array *data)
 
-    void mvePce(const unsigned char a, const unsigned char b); 
+    void mvePce(board* board, const unsigned char a, const unsigned char b); 
 
     // Get move input from player
-    unsigned char getMove();
+    unsigned char getInpt();
 
     // Move verification function
-    bool vldMove(board *board, const unsigned char tgtMove, const Array * const vldMves)
+    bool vldMove(const unsigned char tgtMove, const Array * const vldMves)
 
     // Function to promote piece
     void pmtePce(board *board, const unsigned char tgtPce);
@@ -99,9 +99,8 @@ struct piece {
 
     // Allocater Funcitons
     Array *alloc(const unsigned int size)
-    board *initBrd(bool fromFile, fstream &file);
-    board *initPlyr(bool fromFile, fstream &file);
-    player *newPlyr()
+    board *newBord(bool fromFile, fstream &file);
+    player *newPlyr(bool fromFile, fstream &file)
 
     // Append Functions
     void appDta(Array *target, const unsigned char input);

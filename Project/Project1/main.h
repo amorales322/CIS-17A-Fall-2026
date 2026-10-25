@@ -52,6 +52,12 @@ struct Board {
     bool deadBrd;
 };
 
+void mvePce(Board *, unsigned char, unsigned char);
+
+unsigned char getInpt();
+
+bool vldMove(unsigned char, const Array *);
+
 void pmtePce(Board *, unsigned char);
 
 Array *alloc(unsigned int);
