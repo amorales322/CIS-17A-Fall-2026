@@ -4,25 +4,25 @@
 
 ```c++
 struct Array {
-    unsigned char *data;
     unsigned int size;
     unsigned int utilSze;
+    unsigned char *data;
 };
 
-struct player {
+struct Player {
     unsigned short nWins;
     unsigned short nLoss;
     string name;
 };
 
-struct board {
-    const unsigned int vertSze{8};
-    const unsigned int horznSz{8};
-    piece **board;
+struct Board {
+    const unsigned int VERTSZE{10};
+    const unsigned int HORZNSZ{10};
+    Piece **board;
     
-    player *white;
+    Player *white;
     unsigned char wFleLoc;
-    player *black;
+    playPlayerer *black;
     unsigned char bFleLoc;
     
     bool wFstMve;
@@ -33,11 +33,11 @@ struct board {
     bool deadBrd;
 };
 
-struct piece {
+struct Piece {
     // The board is initialized as a two-dimensional array of piece structs, pieces are moved using a helper function that copys the data from one piece struct to another and eliminates pieces
     bool empty;
     bool isWhite;
-    pceID pieceID;
+    PieceID pieceID;
     // Used for determining if a pawn is capable of moving two spaces
     bool fstMove;
     // For pawns, if it is able to be captured by en passant
@@ -56,30 +56,30 @@ struct piece {
 ## Enums
 
 ```c++
-    enum pceID {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
+    enum PieceID {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
 ```
 
 ## Functions
 
 ```c++
     // Determines if the board is dead and if only kings remain
-    bool deadBrd(board *board);
+    bool deadBrd(const board *const board);
 
     // Piece Interposing Calculation Function
-    bool pceIntr(board *board, const unsigned char kingPos, const unsigned char tgtPos, const Array * const capPath);
+    bool pceIntr(const board const board, const unsigned char kingPos, const unsigned char tgtPos, const Array * const capPath);
 
     // Used for the king, calculates if the specified space is safe by using the move calculation functions to determine if the king is able to move to this space
-    bool sfeSpce(board *board, const unsigned char tgtPos);
+    bool sfeSpce(const board * const board, const unsigned char tgtPos);
 
     // Move Calculation Functions
-    void kingMov(bool rtrPcLc, const unsigned char initPos, Array *data);
-    void lineMov(bool rtrPcLc, const unsigned char initPos, Array *data);
-    void diagMov(bool rtrPcLc, const unsigned char initPos, Array *data);
-    void knitMov(bool rtrPcLc, const unsigned char initPos, Array *data);
-    void pawnMov(bool isFirstMove, bool enPasnt, bool rtrPcLc, const unsigned char initPos, Array *data);
-    void castle(bool rtrPcLc, const unsigned char initPos, Array *data)
+    void kingMov(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void lineMov(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void diagMov(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void knitMov(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void pawnMov(board* board, bool isFirstMove, bool enPasnt, bool rtrPcLc, const unsigned char initPos, Array *data);
+    void castle(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data)
 
-    void mvePce(board* board, const unsigned char a, const unsigned char b); 
+    void mvePce(const Board *const board, const unsigned char a, const unsigned char b); 
 
     // Get move input from player
     unsigned char getInpt();
@@ -88,36 +88,38 @@ struct piece {
     bool vldMove(const unsigned char tgtMove, const Array * const vldMves)
 
     // Function to promote piece
-    void pmtePce(board *board, const unsigned char tgtPce);
+    void pmtePce(const Board *const board, const unsigned char tgtPce);
 
     // Drawing to and clearing screen
-    void drawBrd(board *board);
+    void drawBrd(const Board *const board);
     void clrScrn();
 
     // Save Game
-    void sveGame(board *board, fstream &file);
+    void sveGame(const Board *const board, fstream &file);
 
     // Allocater Funcitons
     Array *alloc(const unsigned int size)
-    board *newBord(bool fromFile, fstream &file);
-    player *newPlyr(bool fromFile, fstream &file)
+    Board *newBord(const bool fromFile, fstream &file);
+    Player *newPlyr(const bool fromFile, fstream &file)
 
     // Append Functions
-    void appDta(Array *target, const unsigned char input);
-    void appDta(Array *target, Array *from, bool dstryFm = true);
+    void appDta(Array *const array, const unsigned char newDta);
+    void appDta(Array *const to, Array *from, bool dstryFm = true);
 
     // Resize Functions
     // 1. If the new capacity is not specified, the size increases by 1. 
     // 2. Does nothing if the new specified capacity is less than or equal to the current size, does not truncate data
-    void resize(Array *array, int newCap = -1);
+    void resize(Array *const array, int newCap = -1);
 
     // Deallocator Functions
     void dealloc(Array *array);
-    void dealloc(board *board)
-    void dealloc(player *player);
+    void dealloc(Board *board)
+    void dealloc(Player *player);
+    void dealloc(Piece *piece)
 ```
 
 # Example Board
+
 ```
      a   b   c   d   e   f   g   h
    +---+---+---+---+---+---+---+---+

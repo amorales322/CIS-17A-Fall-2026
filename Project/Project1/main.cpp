@@ -36,6 +36,85 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+void kingMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+    const char offsets[]{-11, -10, -9, -1, 1, 9, 10, 11};
+    unsigned char cur;
+
+    for (int i{0}; i < 8; i++) {
+        cur = initPos + offsets[i];
+        if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+            if (tgtMode) {
+                switch (board->board[cur]->pieceID) {
+                    // Since the king cannot be right next to the other king, the king case is ignored
+                    // Additionally the knight is ignored because it is impossible for a knight to move to an adjacent square
+                    case QUEEN:
+                        appDta(data, cur);
+                        break;
+                    case ROOK:
+                        if (cur == initPos + 1 || cur == initPos - 1 || cur == initPos - 10 || cur == initPos + 10)
+                            appDta(data, cur);
+                        break;
+                    case BISHOP:
+                        if (cur == initPos + 9 || cur == initPos - 9 || cur == initPos + 11 || cur == initPos - 11)
+                            appDta(data, cur);
+                        break;
+                    case PAWN:
+                        // Todo: Account for en passant
+                        if ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
+                                !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9)))
+                            appDta(data, cur);
+                        break;
+                }
+            } else
+                appDta(data, cur);
+        }
+    }
+}
+
+void lineMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+    unsigned char cur{initPos};
+    // Up
+    cur -= 10;
+    while (!isOOB(cur) && board->board[cur]->empty)
+        if (!tgtMode)
+            appDta(data, postDec(cur, 10));
+
+    // The knight and bishop are ignored because they cannot move in a straight path vertically or horizontally
+    // The pawn is also ignored because it cannot capture vertically or horizontally
+    // The king is ignored because it cannot ocupy an adjacent square next to another king
+    if (tgtMode && cur >= 12 && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
+        appDta(data, cur);
+
+    // Down
+    cur = initPos + 10;
+    while (!isOOB(cur) && board->board[cur]->empty)
+        if (!tgtMode)
+            appDta(data, postInc(cur, 10));
+    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
+        appDta(data, cur);
+
+    // Left
+    cur = initPos - 1;
+    while (!isOOB(cur) && board->board[cur]->empty)
+        if (!tgtMode)
+            appDta(data, cur--);
+    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
+        appDta(data, cur);
+
+    // Right
+    cur = initPos + 1;
+    while (!isOOB(cur) && board->board[cur]->empty)
+        if (!tgtMode)
+            appDta(data, cur++);
+    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
+        appDta(data, cur);
+}
+
+
+bool isOOB(const unsigned char pos) {
+    return pos <= 12 || pos >= 89 || pos % 10 == 0 || pos % 10 == 1;
+}
+
 void mvePce(Board *board, const unsigned char a, const unsigned char b) {
     Piece *tmp(board->board[a]);
     board->board[a] = board->board[b];
@@ -57,7 +136,7 @@ unsigned char getInpt() {
             cin >> input;
         }
     }
-    return (toupper(input[0]) - 64) + (input[1] - 48);
+    return (toupper(input[0]) - 63) + (82 - (input[1] - 49) * 10);
 }
 
 bool vldMove(const unsigned char tgtMove, const Array *const vldMves) {
@@ -97,10 +176,10 @@ void pmtePce(Board *const board, const unsigned char tgtPce) {
 
 void drawBrd(const Board *const board) {
     cout << "     a   b   c   d   e   f   g   h\n";
-    for (int row{0}; row < board->HORZNSZ; row++) {
+    for (int row{1}; row < board->HORZNSZ - 1; row++) {
         cout << "   +---+---+---+---+---+---+---+---+";
         cout << " " << row + 1 << " |";
-        for (int col{0}; col < board->VERTSZE; col++) {
+        for (int col{1}; col < board->VERTSZE - 1; col++) {
             if (!board->board[row][col].empty) {
                 cout << ' ';
                 switch (board->board[row][col].pieceID) {
@@ -146,6 +225,7 @@ Array *alloc(const unsigned int size) {
 }
 
 Player *newPlyr() {
+    // Todo: New Player from file
     Player *player = new Player;
     player->nWins = 0;
     player->nLoss = 0;
@@ -161,13 +241,13 @@ Player *newPlyr() {
     return player;
 }
 
-void appDta(Array *array, unsigned char newDta) {
+void appDta(Array *const array, unsigned char newDta) {
     if (array->utilSze >= array->size)
         resize(array);
     array->data[array->utilSze++] = newDta;
 }
 
-void appDta(Array *to, Array *from, bool dstryFm) {
+void appDta(Array *const to, Array *from, bool dstryFm) {
     if (to->size < to->utilSze + from->utilSze)
         resize(to, to->utilSze + from->utilSze);
     for (unsigned int i{to->utilSze}; i < to->utilSze + from->utilSze; to->data[i] = from->data[i - to->utilSze], i++);
@@ -175,7 +255,7 @@ void appDta(Array *to, Array *from, bool dstryFm) {
         dealloc(from);
 }
 
-void resize(Array *array, int newCap) {
+void resize(Array *const array, int newCap) {
     if (newCap == -1) {
         unsigned char *newData = new unsigned char[array->size++];
         for (unsigned int i{0}; i < array->utilSze; newData[i] = array->data[i], i++);
@@ -209,4 +289,14 @@ void dealloc(Piece *piece) {
         dealloc(piece->vldMove);
     if (piece->capPth != nullptr)
         dealloc(piece->capPth);
+}
+
+unsigned char postDec(unsigned char &val, const int by) {
+    val -= by;
+    return val + by;
+}
+
+unsigned char postInc(unsigned char &val, const int by) {
+    val += by;
+    return val - by;
 }
