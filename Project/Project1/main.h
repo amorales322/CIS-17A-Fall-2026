@@ -52,18 +52,25 @@ struct Board {
     bool deadBrd;
 };
 
+bool sfeSpce(const Board *, unsigned char);
+// Calculates if the path between two points is unobstructed
+// Must be a straight vertical, horizontal, or diagonal line
+bool unObPth(const Board *, unsigned char, unsigned char);
+
 // Move Calculation Functions
 void kingMov(const Board *, bool, unsigned char, Array *);
 void lineMov(const Board *,bool, unsigned char, Array *);
 void diagMov(const Board *,bool, unsigned char, Array *);
 void knitMov(const Board *,bool, unsigned char, Array *);
-void pawnMov(const Board *,bool, bool, bool, unsigned char, Array *);
-void castle(const Board *,bool, unsigned char, Array *);
+void pawnMov(const Board *,bool, unsigned char, Array *);
+// Target mode not needed, castling only works with kings
+void castle(const Board *, unsigned char, Array *);
 
 // User Input & Input Validation
 unsigned char getInpt();
 bool vldMove(unsigned char, const Array *);
 bool isOOB(unsigned char);
+bool vldPcMv(const Board *, unsigned char, unsigned char);
 
 // Other Functions
 void mvePce(Board *, unsigned char, unsigned char);

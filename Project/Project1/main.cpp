@@ -7,7 +7,8 @@
 
 // System Libraries
 #include <iostream> // Input Output Library
-#include <cctype>
+#include <cctype>   // C Character Handling Library
+#include <cmath>    // C Math Library
 using namespace std;
 
 // User Libraries
@@ -36,83 +37,228 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+bool unObPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
+    unsigned char start;
+    unsigned char end;
+
+    if (initPos == tgtPos)
+        return true;
+
+    // Left/Right
+    if (initPos % 10 == tgtPos % 10) {
+        start = initPos <= tgtPos ? initPos : tgtPos;
+        end = initPos <= tgtPos ? tgtPos : initPos;
+        for (; start <= end; start++)
+            if (!board->board[start]->empty)
+                return false;
+        return true;
+    }
+
+    // Up/Down
+    if (initPos / 10 == tgtPos / 10) {
+        start = initPos <= tgtPos ? initPos : tgtPos;
+        end = initPos <= tgtPos ? tgtPos : initPos;
+        for (; start <= end; start += 10)
+            if (!board->board[start]->empty)
+                return false;
+        return true;
+    }
+    //
+
+    // Diagonal
+    if (abs(initPos % 10 - tgtPos % 10) == abs(initPos / 10 - tgtPos / 10)) {
+        start = initPos <= tgtPos ? initPos : tgtPos;
+        end = initPos <= tgtPos ? tgtPos : initPos;
+        int incAmt{initPos <= tgtPos ? 11 : -9};
+        for (; start <= end; start += incAmt)
+            if (!board->board[start]->empty)
+                return false;
+        return true;
+    }
+    return false;
+}
+
 void kingMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
     const char offsets[]{-11, -10, -9, -1, 1, 9, 10, 11};
     unsigned char cur;
 
     for (int i{0}; i < 8; i++) {
         cur = initPos + offsets[i];
-        if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
-            if (tgtMode) {
-                switch (board->board[cur]->pieceID) {
-                    // Since the king cannot be right next to the other king, the king case is ignored
-                    // Additionally the knight is ignored because it is impossible for a knight to move to an adjacent square
-                    case QUEEN:
-                        appDta(data, cur);
-                        break;
-                    case ROOK:
-                        if (cur == initPos + 1 || cur == initPos - 1 || cur == initPos - 10 || cur == initPos + 10)
-                            appDta(data, cur);
-                        break;
-                    case BISHOP:
-                        if (cur == initPos + 9 || cur == initPos - 9 || cur == initPos + 11 || cur == initPos - 11)
-                            appDta(data, cur);
-                        break;
-                    case PAWN:
-                        // Todo: Account for en passant
-                        if ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
-                                !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9)))
-                            appDta(data, cur);
-                        break;
-                }
-            } else
+        if (tgtMode && !board->board[cur]->empty && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+            if (board->board[cur]->pieceID == QUEEN)
                 appDta(data, cur);
-        }
+            else if (board->board[cur]->pieceID == ROOK && (cur == initPos + 1 || cur == initPos - 1 || cur == initPos - 10 || cur == initPos + 10))
+                appDta(data, cur);
+            else if (board->board[cur]->pieceID == BISHOP && (cur == initPos + 9 || cur == initPos - 9 || cur == initPos + 11 || cur == initPos - 11))
+                appDta(data, cur);
+            else if (board->board[cur]->pieceID == PAWN && ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
+                                                                !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9))))
+                appDta(data, cur);
+        } else if (vldPcMv(board, initPos, cur))
+            appDta(data, cur);
     }
 }
 
 void lineMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    unsigned char cur{initPos};
+    unsigned char cur;
     // Up
-    cur -= 10;
-    while (!isOOB(cur) && board->board[cur]->empty)
+    cur = initPos - 10;
+    while (!isOOB(cur) && board->board[cur]->empty) {
         if (!tgtMode)
-            appDta(data, postDec(cur, 10));
-
-    // The knight and bishop are ignored because they cannot move in a straight path vertically or horizontally
-    // The pawn is also ignored because it cannot capture vertically or horizontally
-    // The king is ignored because it cannot ocupy an adjacent square next to another king
-    if (tgtMode && cur >= 12 && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
-        appDta(data, cur);
+            appDta(data, cur);
+        cur -= 10;
+    }
+    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+        // The knight and bishop are ignored because they cannot move in a straight path vertically or horizontally
+        // The pawn is also ignored because it cannot capture vertically or horizontally
+        // The king is ignored because it cannot ocupy an adjacent square next to another king
+        if (tgtMode) {
+            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
+                appDta(data, cur);
+        } else
+            appDta(data, cur);
+    }
 
     // Down
     cur = initPos + 10;
-    while (!isOOB(cur) && board->board[cur]->empty)
+    while (!isOOB(cur) && board->board[cur]->empty) {
         if (!tgtMode)
-            appDta(data, postInc(cur, 10));
-    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
-        appDta(data, cur);
+            appDta(data, cur);
+        cur += 10;
+    }
+
+    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+        if (tgtMode) {
+            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
+                appDta(data, cur);
+        } else
+            appDta(data, cur);
+    }
 
     // Left
     cur = initPos - 1;
     while (!isOOB(cur) && board->board[cur]->empty)
         if (!tgtMode)
             appDta(data, cur--);
-    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
-        appDta(data, cur);
+    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+        if (tgtMode) {
+            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
+                appDta(data, cur);
+        } else
+            appDta(data, cur);
+    }
 
     // Right
     cur = initPos + 1;
     while (!isOOB(cur) && board->board[cur]->empty)
         if (!tgtMode)
             appDta(data, cur++);
-    if (tgtMode && !isOOB(cur) && (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK))
-        appDta(data, cur);
+    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+        if (tgtMode) {
+            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
+                appDta(data, cur);
+        } else
+            appDta(data, cur);
+    }
 }
 
+void diagMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+    const char offsets[]{-11, -9, 9, 11};
+    unsigned char cur;
+    for (int i{0}; i < 4; i++) {
+        cur = initPos + offsets[i];
+        while (!isOOB(cur) && board->board[cur]->empty) {
+            if (!tgtMode)
+                appDta(data, cur);
+            cur += offsets[i];
+        }
+        if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+            // Ignoring king because it cannot occupy an adjacent square next to another king
+            // Ignoring rook and knight because they cannot move diagonally
+            if (tgtMode) {
+                if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == BISHOP)
+                    appDta(data, cur);
+                else if (board->board[cur]->pieceID == PAWN && ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
+                                                                    !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9))))
+                    appDta(data, cur);
+            } else
+                appDta(data, cur);
+        }
+    }
+}
+
+void knitMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+    const char offsets[]{-21, -19, -12, -8, 8, 12, 19, 21};
+    unsigned char cur;
+    for (int i{0}; i < 8; i++) {
+        cur = initPos + offsets[i];
+        if (!isOOB(cur)) {
+            if (tgtMode && !board->board[cur]->empty && board->board[cur]->isWhite != board->board[initPos]->isWhite && board->board[cur]->pieceID == KNIGHT) {
+                appDta(data, cur);
+            } else if (vldPcMv(board, initPos, cur))
+                appDta(data, cur);
+        }
+    }
+}
+
+void pawnMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+    const char offsets[]{-11, -10, -9, 9, 10, 11};
+    char cur;
+    if (tgtMode) {
+        if (!board->board[initPos - 11]->empty && !board->board[initPos - 11]->isWhite && board->board[initPos]->isWhite)
+            appDta(data, cur);
+        if (!board->board[initPos - 9]->empty && !board->board[initPos - 9]->isWhite && board->board[initPos]->isWhite)
+            appDta(data, cur);
+
+        if (!board->board[initPos + 11]->empty && board->board[initPos + 11]->isWhite && !board->board[initPos]->isWhite)
+            appDta(data, cur);
+        if (!board->board[initPos + 9]->empty && board->board[initPos + 9]->isWhite && !board->board[initPos]->isWhite)
+            appDta(data, cur);
+    } else {
+        if (board->board[initPos]->isWhite) {
+            for (int i{0}; i < 3; i++) {
+                cur = initPos + offsets[i];
+                if (vldPcMv(board, initPos, cur))
+                    appDta(data, cur);
+            }
+        } else {
+            for (int i{3}; i < 6; i++) {
+                cur = initPos + offsets[i];
+                if (vldPcMv(board, initPos, cur))
+                    appDta(data, cur);
+            }
+        }
+    }
+}
+
+void castle(const Board *const board, const unsigned char initPos, Array *data) {
+    if (board->board[initPos]->pieceID == KING && board->board[initPos]->fstMove) {
+        if (board->board[initPos]->isWhite) {
+            if (board->board[82]->pieceID == ROOK && board->board[82]->fstMove)
+                if (sfeSpce(board, 84) && unObPth(board, initPos - 1, 82))
+                    appDta(data, 84);
+
+            if (board->board[89]->pieceID == ROOK && board->board[89]->fstMove)
+                if (sfeSpce(board, 88) && unObPth(board, initPos + 1, 89))
+                    appDta(data, 88);
+        } else {
+            if (board->board[12]->pieceID == ROOK && board->board[12]->fstMove)
+                if (sfeSpce(board, 14) && unObPth(board, initPos - 1, 12))
+                    appDta(data, 14);
+
+            if (board->board[19]->pieceID == ROOK && board->board[19]->fstMove)
+                if (sfeSpce(board, 18) && unObPth(board, initPos + 1, 19))
+                    appDta(data, 18);
+        }
+    }
+}
 
 bool isOOB(const unsigned char pos) {
     return pos <= 12 || pos >= 89 || pos % 10 == 0 || pos % 10 == 1;
+}
+
+bool vldPcMv(const Board *const board, const unsigned char initPos, const unsigned char fnlPos) {
+    return !isOOB(fnlPos) && (board->board[fnlPos]->empty || board->board[fnlPos]->isWhite != board->board[initPos]->isWhite);
 }
 
 void mvePce(Board *board, const unsigned char a, const unsigned char b) {
