@@ -68,8 +68,11 @@ struct Piece {
     // Piece Interposing Calculation Function
     bool pceIntr(const board const board, const unsigned char kingPos, const unsigned char tgtPos, const Array * const capPath);
 
-    // Used for the king, calculates if the specified space is safe by using the move calculation functions to determine if the king is able to move to this space
-    bool sfeSpce(const board * const board, const unsigned char tgtPos);
+    
+    // Used for the king 
+    // If 'intrMde' is false, calculates if the specified space is safe by using the move calculation functions to determine if the king is able to move to this space
+    // If 'intrMde' is true, calculates if any of the players pieces can reach the target space, used for piece interposing in the pceIntr() function
+    bool sfeSpce(const board * const board, const unsigned char tgtPos, bool intrMde = true));
 
     // Move Calculation Functions
     void kingMov(const Board *const board, bool rtrPcLc, const unsigned char initPos, Array *data);
@@ -211,14 +214,19 @@ struct Piece {
 * Uses 5 functions to calculate the different valid spaces that can be moved to
 * Each function takes a start position for where to calculate the valid positions from
 * Each function then calculates the position that can be moved to, accounting for obstacle pieces that are in the way
-* If the returnPieceLocation flag is set, the function instead searches if there are any pieces at the target locations,
-  and returns their positions if the piece is able to move to the original location
+* If the targetMode flag is set, the function instead searches if there are any enemy pieces at the target locations,
+  and returns the target positions if the piece at the target location is able to move to the original location
+* If the pieceInterpose flag is not set but the targetMode flag is, then the function does not change its behavior as specified above
+* If the pieceInterpose flag is set along with the targetMode flag, the function searches if there are any of the players
+* pieces that are able to reach the original location, and returns the positions of those pieces
+* The pieceInterpose flag is ignored if the targetMode flag is not set
 * The function "returns" one value through the parameters passed to it
-    * If the returnPieceLocation flag is not set
+    * If the targetMode flag is not set
         * An array of all the valid positions that the piece can move to based on its movement pattern and any obstacle
           pieces
-    * If the returnPieceLocation flag is set
+    * If the targetMode flag is set
         * An array of all the pieces at the target locations that are able to move to the initial position
+        * 
 
 ### Calculation Functions
 

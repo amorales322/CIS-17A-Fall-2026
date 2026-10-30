@@ -217,53 +217,69 @@ void knitMov(const Board *const board, const bool tgtMode, const unsigned char i
 }
 
 void pawnMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    const char offsets[]{-11, -10, -9, 9, 10, 11};
-    char cur;
-    if (tgtMode) {
-        if (!board->board[initPos - 11]->empty && !board->board[initPos - 11]->isWhite && board->board[initPos]->isWhite)
-            appDta(data, cur);
-        if (!board->board[initPos - 9]->empty && !board->board[initPos - 9]->isWhite && board->board[initPos]->isWhite)
-            appDta(data, cur);
+    // +- 20 offsets are calculated if the pawn has not moved yet
+    const char offsets[]{-20, -11, -10, -9, 9, 10, 11, 20};
 
-        if (!board->board[initPos + 11]->empty && board->board[initPos + 11]->isWhite && !board->board[initPos]->isWhite)
-            appDta(data, cur);
-        if (!board->board[initPos + 9]->empty && board->board[initPos + 9]->isWhite && !board->board[initPos]->isWhite)
-            appDta(data, cur);
-    } else {
-        if (board->board[initPos]->isWhite) {
-            for (int i{0}; i < 3; i++) {
-                cur = initPos + offsets[i];
-                if (vldPcMv(board, initPos, cur))
-                    appDta(data, cur);
+    // Todo: Remove lambda function when finished (I use it here to make my code easier to debug when working on it)
+    // This does not need to be a function because I will only use this code inside the pawnMov function
+    auto vldtor = [&board](const unsigned char tgtLoc) {
+        return !isOOB(tgtLoc) && !board->board[tgtLoc]->empty && !board->board[tgtLoc]->isWhite;
+    };
+
+    if (board->board[initPos]->pieceID == PAWN) {
+        // tgtMode does not need to account for forward (one or two space) because pawns cannot capture forward and cannot move
+        // forward to a space if there is a piece occupying that space
+        if (tgtMode) {
+            if (board->board[initPos]->isWhite) {
+                if (vldtor(initPos - 11))
+                    appDta(data, initPos - 11);
+                if (vldtor(initPos - 9))
+                    appDta(data, initPos - 9);
+            } else {
+                if (vldtor(initPos + 11))
+                    appDta(data, initPos + 11);
+                if (vldtor(initPos + 9))
+                    appDta(data, initPos + 9);
             }
         } else {
-            for (int i{3}; i < 6; i++) {
-                cur = initPos + offsets[i];
-                if (vldPcMv(board, initPos, cur))
-                    appDta(data, cur);
+            char cur;
+            if (board->board[initPos]->isWhite) {
+                for (int i{board->board[initPos]->fstMove ? 0 : 1}; i < 4; i++) {
+                    cur = initPos + offsets[i];
+                    if (vldPcMv(board, initPos, cur))
+                        appDta(data, cur);
+                }
+            } else {
+                for (int i{4}; i < (board->board[initPos]->fstMove ? 8 : 7); i++) {
+                    cur = initPos + offsets[i];
+                    if (vldPcMv(board, initPos, cur))
+                        appDta(data, cur);
+                }
             }
         }
     }
 }
 
+// Castling does not apply when trying to calculate safe spaces for the king to move
+// so this function doesnt need the tgtMode or intrpse variables
 void castle(const Board *const board, const unsigned char initPos, Array *data) {
+    // Todo: Remove lambda function when finished (I use it here to make my code easier to debug when working on it)
+    // This does not need to be a function because I will only use this code inside the castle function
+    auto vldtor = [&board](const unsigned char initPos, const unsigned char rookPos, const unsigned char finlPos) {
+        return board->board[rookPos]->pieceID == ROOK && board->board[rookPos]->fstMove && sfeSpce(board, finlPos) && unObPth(board, initPos - 1, rookPos);
+    };
+
     if (board->board[initPos]->pieceID == KING && board->board[initPos]->fstMove) {
         if (board->board[initPos]->isWhite) {
-            if (board->board[82]->pieceID == ROOK && board->board[82]->fstMove)
-                if (sfeSpce(board, 84) && unObPth(board, initPos - 1, 82))
-                    appDta(data, 84);
-
-            if (board->board[89]->pieceID == ROOK && board->board[89]->fstMove)
-                if (sfeSpce(board, 88) && unObPth(board, initPos + 1, 89))
-                    appDta(data, 88);
+            if (vldtor(initPos, 82, 84))
+                appDta(data, 84);
+            if (vldtor(initPos, 89, 88))
+                appDta(data, 84);
         } else {
-            if (board->board[12]->pieceID == ROOK && board->board[12]->fstMove)
-                if (sfeSpce(board, 14) && unObPth(board, initPos - 1, 12))
-                    appDta(data, 14);
-
-            if (board->board[19]->pieceID == ROOK && board->board[19]->fstMove)
-                if (sfeSpce(board, 18) && unObPth(board, initPos + 1, 19))
-                    appDta(data, 18);
+            if (vldtor(initPos, 12, 14))
+                appDta(data, 14);
+            if (vldtor(initPos, 19, 18))
+                appDta(data, 18);
         }
     }
 }
