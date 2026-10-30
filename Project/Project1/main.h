@@ -52,7 +52,9 @@ struct Board {
     bool deadBrd;
 };
 
+bool deadBrd(const Board *);
 bool sfeSpce(const Board *, unsigned char);
+
 // Calculates if the path between two points is unobstructed
 // Must be a straight vertical, horizontal, or diagonal line
 bool unObPth(const Board *, unsigned char, unsigned char);

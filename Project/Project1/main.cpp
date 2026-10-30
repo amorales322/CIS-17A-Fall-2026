@@ -37,6 +37,21 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+bool deadBrd(const Board *const board) {
+    // This function is extendable and allows me to add more states to check for to determine a dead board
+
+    // This condition checks for if only kings remain on the board, and returns false for the first non-king piece it finds
+    for (int i{12}; i < (board->VERTSZE - 1) * 10 + (board->HORZNSZ - 1); i++)
+        if (board->board[i]->pieceID != KING)
+            return false;
+
+    // Todo: King + Bishop vs King
+    // Todo: King + Knight vs King
+    // Todo: King + Bishop vs King + Bishop
+    // Todo: King + Knight vs King + Knight
+    return true;
+}
+
 bool unObPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
     unsigned char start;
     unsigned char end;
