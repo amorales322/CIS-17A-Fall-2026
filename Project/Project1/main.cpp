@@ -261,7 +261,7 @@ void pawnMov(const Board *const board, const bool tgtMode, const unsigned char i
 }
 
 // Castling does not apply when trying to calculate safe spaces for the king to move
-// so this function doesnt need the tgtMode or intrpse variables
+// so this function doesn't need the tgtMode or intrpse variables
 void castle(const Board *const board, const unsigned char initPos, Array *data) {
     // Todo: Remove lambda function when finished (I use it here to make my code easier to debug when working on it)
     // This does not need to be a function because I will only use this code inside the castle function
@@ -444,7 +444,22 @@ void resize(Array *const array, int newCap) {
         for (unsigned int i{0}; i < array->utilSze; newData[i] = array->data[i], i++);
         delete []array->data;
         array->data = newData;
+    } else {
+        array->size = newCap;
+        unsigned char *newData = new unsigned char[array->size];
+        for (unsigned int i{0}; i < array->size; newData[i] = array->data[i], i++);
+        delete []array->data;
+        array->data = newData;
     }
+}
+
+void clear(Array *const array) {
+    for (int i{0}; i < array->utilSze; array->data[i] = 0, i++);
+    array->utilSze = 0;
+}
+
+void shrink(Array *const array) {
+    resize(array, array->utilSze);
 }
 
 void dealloc(Array *array) {

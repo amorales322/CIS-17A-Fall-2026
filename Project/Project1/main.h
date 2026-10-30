@@ -90,8 +90,10 @@ Player *newPlyr();
 void appDta(Array *, unsigned char);
 void appDta(Array *, Array *, bool = true);
 
-// Resize function
+// Array Modifier Functions
 void resize(Array *, int = -1);
+void clear(Array *);
+void shrink(Array *);
 
 // Deallocators
 void dealloc(Array *);
