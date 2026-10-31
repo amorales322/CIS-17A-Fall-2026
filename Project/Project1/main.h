@@ -54,6 +54,8 @@ struct Board {
 
 bool deadBrd(const Board *);
 
+bool sfeSpce(const Board *, unsigned char, bool, Array *);
+// This overload has interpose mode disabled and does not return an array, it only checks if the space is safe
 bool sfeSpce(const Board *, unsigned char);
 
 // Calculates if the path between two points is unobstructed

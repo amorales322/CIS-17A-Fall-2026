@@ -52,6 +52,39 @@ bool deadBrd(const Board *const board) {
     return true;
 }
 
+/*
+ * When interpose mode is disabled, this function calculates if an enemy piece can reach the target location.
+ *
+ * When interpose mode is enabled, this function calculates if any of the player's pieces can reach the target location, which is used for
+ * the piece interpose function to determine which pieces can interpose between the king and the target piece, and calculate the
+ * pieces that can be moved and where they can move.
+ */
+bool sfeSpce(const Board *const board, const unsigned char tgtPos, const bool iposeMde, Array *const data) {
+    bool isSafe;
+    kingMov(board, true, iposeMde, tgtPos, data);
+    lineMov(board, true, iposeMde, tgtPos, data);
+    diagMov(board, true, iposeMde, tgtPos, data);
+    knitMov(board, true, iposeMde, tgtPos, data);
+    pawnMov(board, true, iposeMde, tgtPos, data);
+
+    isSafe = data->utilSze > 0;
+    return isSafe;
+}
+
+bool sfeSpce(const Board *const board, const unsigned char tgtPos) {
+    Array *posData = alloc(20);
+    bool isSafe;
+    kingMov(board, true, false, tgtPos, posData);
+    lineMov(board, true, false, tgtPos, posData);
+    diagMov(board, true, false, tgtPos, posData);
+    knitMov(board, true, false, tgtPos, posData);
+    pawnMov(board, true, false, tgtPos, posData);
+
+    isSafe = posData->utilSze > 0;
+    dealloc(posData);
+    return isSafe;
+}
+
 bool unObPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
     unsigned char start;
     unsigned char end;
