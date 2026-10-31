@@ -93,137 +93,148 @@ bool unObPth(const Board *const board, const unsigned char initPos, const unsign
     return false;
 }
 
-void kingMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    const char offsets[]{-11, -10, -9, -1, 1, 9, 10, 11};
-    unsigned char cur;
+void kingMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
+    static const char offsets[]{-11, -10, -9, -1, 1, 9, 10, 11};
+    unsigned char offPos;
 
     for (int i{0}; i < 8; i++) {
-        cur = initPos + offsets[i];
-        if (tgtMode && !board->board[cur]->empty && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
-            if (board->board[cur]->pieceID == QUEEN)
-                appDta(data, cur);
-            else if (board->board[cur]->pieceID == ROOK && (cur == initPos + 1 || cur == initPos - 1 || cur == initPos - 10 || cur == initPos + 10))
-                appDta(data, cur);
-            else if (board->board[cur]->pieceID == BISHOP && (cur == initPos + 9 || cur == initPos - 9 || cur == initPos + 11 || cur == initPos - 11))
-                appDta(data, cur);
-            else if (board->board[cur]->pieceID == PAWN && ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
-                                                                !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9))))
-                appDta(data, cur);
-        } else if (vldPcMv(board, initPos, cur))
-            appDta(data, cur);
+        offPos = initPos + offsets[i];
+        if (tgtMode && !board->board[offPos]->empty && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
+            if (board->board[offPos]->pieceID == QUEEN)
+                appDta(data, offPos);
+            else if (board->board[offPos]->pieceID == ROOK && (offPos == initPos + 1 || offPos == initPos - 1 || offPos == initPos - 10 || offPos == initPos + 10))
+                appDta(data, offPos);
+            else if (board->board[offPos]->pieceID == BISHOP && (offPos == initPos + 9 || offPos == initPos - 9 || offPos == initPos + 11 || offPos == initPos - 11))
+                appDta(data, offPos);
+                // Todo: Verify this logic is not repeated inside the pawnMov() function
+            else if (board->board[offPos]->pieceID == PAWN && ((board->board[offPos]->isWhite && (offPos == initPos + 11 || offPos == initPos + 9)) || (
+                                                                   !board->board[offPos]->isWhite && (offPos == initPos - 11 || offPos == initPos - 9))))
+                appDta(data, offPos);
+        } else if (vldPcMv(board, initPos, offPos))
+            appDta(data, offPos);
     }
 }
 
-void lineMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    unsigned char cur;
+void lineMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
+    unsigned char offPos;
     // Up
-    cur = initPos - 10;
-    while (!isOOB(cur) && board->board[cur]->empty) {
+    offPos = initPos - 10;
+    while (!isOOB(offPos) && board->board[offPos]->empty) {
         if (!tgtMode)
-            appDta(data, cur);
-        cur -= 10;
+            appDta(data, offPos);
+        offPos -= 10;
     }
-    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+    if (!isOOB(offPos) && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
         // The knight and bishop are ignored because they cannot move in a straight path vertically or horizontally
         // The pawn is also ignored because it cannot capture vertically or horizontally
         // The king is ignored because it cannot ocupy an adjacent square next to another king
         if (tgtMode) {
-            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
-                appDta(data, cur);
+            if (board->board[offPos]->pieceID == QUEEN || board->board[offPos]->pieceID == ROOK)
+                appDta(data, offPos);
         } else
-            appDta(data, cur);
+            appDta(data, offPos);
     }
 
     // Down
-    cur = initPos + 10;
-    while (!isOOB(cur) && board->board[cur]->empty) {
+    offPos = initPos + 10;
+    while (!isOOB(offPos) && board->board[offPos]->empty) {
         if (!tgtMode)
-            appDta(data, cur);
-        cur += 10;
+            appDta(data, offPos);
+        offPos += 10;
     }
 
-    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+    if (!isOOB(offPos) && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
         if (tgtMode) {
-            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
-                appDta(data, cur);
+            if (board->board[offPos]->pieceID == QUEEN || board->board[offPos]->pieceID == ROOK)
+                appDta(data, offPos);
         } else
-            appDta(data, cur);
+            appDta(data, offPos);
     }
 
     // Left
-    cur = initPos - 1;
-    while (!isOOB(cur) && board->board[cur]->empty)
+    offPos = initPos - 1;
+    while (!isOOB(offPos) && board->board[offPos]->empty)
         if (!tgtMode)
-            appDta(data, cur--);
-    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+            appDta(data, offPos--);
+    if (!isOOB(offPos) && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
         if (tgtMode) {
-            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
-                appDta(data, cur);
+            if (board->board[offPos]->pieceID == QUEEN || board->board[offPos]->pieceID == ROOK)
+                appDta(data, offPos);
         } else
-            appDta(data, cur);
+            appDta(data, offPos);
     }
 
     // Right
-    cur = initPos + 1;
-    while (!isOOB(cur) && board->board[cur]->empty)
+    offPos = initPos + 1;
+    while (!isOOB(offPos) && board->board[offPos]->empty)
         if (!tgtMode)
-            appDta(data, cur++);
-    if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
+            appDta(data, offPos++);
+    if (!isOOB(offPos) && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
         if (tgtMode) {
-            if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == ROOK)
-                appDta(data, cur);
+            if (board->board[offPos]->pieceID == QUEEN || board->board[offPos]->pieceID == ROOK)
+                appDta(data, offPos);
         } else
-            appDta(data, cur);
+            appDta(data, offPos);
     }
 }
 
-void diagMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    const char offsets[]{-11, -9, 9, 11};
-    unsigned char cur;
+void diagMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
+    static const char offsets[]{-11, -9, 9, 11};
+    unsigned char offPos;
     for (int i{0}; i < 4; i++) {
-        cur = initPos + offsets[i];
-        while (!isOOB(cur) && board->board[cur]->empty) {
+        offPos = initPos + offsets[i];
+
+        while (!isOOB(offPos) && board->board[offPos]->empty) {
             if (!tgtMode)
-                appDta(data, cur);
-            cur += offsets[i];
+                appDta(data, offPos);
+            offPos += offsets[i];
         }
-        if (!isOOB(cur) && board->board[cur]->isWhite != board->board[initPos]->isWhite) {
-            // Ignoring king because it cannot occupy an adjacent square next to another king
-            // Ignoring rook and knight because they cannot move diagonally
-            if (tgtMode) {
-                if (board->board[cur]->pieceID == QUEEN || board->board[cur]->pieceID == BISHOP)
-                    appDta(data, cur);
-                else if (board->board[cur]->pieceID == PAWN && ((board->board[cur]->isWhite && (cur == initPos + 11 || cur == initPos + 9)) || (
-                                                                    !board->board[cur]->isWhite && (cur == initPos - 11 || cur == initPos - 9))))
-                    appDta(data, cur);
-            } else
-                appDta(data, cur);
+
+        // If the above code runs until the offset position is out of bounds, this code does not run
+        // This checks the final position the code stopped at if it is not out of bounds
+        if (!isOOB(offPos)) {
+            if (tgtMode && !board->board[offPos]->empty && (intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
+                // Ignoring king because it cannot occupy an adjacent square next to another king
+                // Ignoring rook and knight because they cannot move diagonally
+                if (board->board[offPos]->pieceID == QUEEN || board->board[offPos]->pieceID == BISHOP)
+                    appDta(data, offPos);
+                    // Todo: Verify this logic is not repeated inside the pawnMov() function
+                else if (board->board[offPos]->pieceID == PAWN && ((board->board[offPos]->isWhite && (offPos == initPos + 11 || offPos == initPos + 9)) || (
+                                                                       !board->board[offPos]->isWhite && (offPos == initPos - 11 || offPos == initPos - 9))))
+                    appDta(data, offPos);
+            } else if (vldPcMv(board, initPos, offPos)) {
+                // Not in target mode
+                // If not in target mode, we are checking if the piece can move to the final position
+                // so the piece at the initial location can move to the final location
+                appDta(data, offPos);
+            }
         }
     }
 }
 
-void knitMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
-    const char offsets[]{-21, -19, -12, -8, 8, 12, 19, 21};
-    unsigned char cur;
+void knitMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
+    static const char offsets[]{-21, -19, -12, -8, 8, 12, 19, 21};
+    unsigned char offPos;
     for (int i{0}; i < 8; i++) {
-        cur = initPos + offsets[i];
-        if (!isOOB(cur)) {
-            if (tgtMode && !board->board[cur]->empty && board->board[cur]->isWhite != board->board[initPos]->isWhite && board->board[cur]->pieceID == KNIGHT) {
-                appDta(data, cur);
-            } else if (vldPcMv(board, initPos, cur))
-                appDta(data, cur);
+        offPos = initPos + offsets[i];
+        if (!isOOB(offPos)) {
+            if (tgtMode && !board->board[offPos]->empty && board->board[offPos]->pieceID == KNIGHT && (
+                    intrpse || board->board[offPos]->isWhite != board->board[initPos]->isWhite)) {
+                appDta(data, offPos);
+            } else if (vldPcMv(board, initPos, offPos))
+                appDta(data, offPos);
         }
     }
 }
 
-void pawnMov(const Board *const board, const bool tgtMode, const unsigned char initPos, Array *data) {
+void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
     // +- 20 offsets are calculated if the pawn has not moved yet
-    const char offsets[]{-20, -11, -10, -9, 9, 10, 11, 20};
+    static const char offsets[]{-20, -11, -10, -9, 9, 10, 11, 20};
 
     // Todo: Remove lambda function when finished (I use it here to make my code easier to debug when working on it)
     // This does not need to be a function because I will only use this code inside the pawnMov function
-    auto vldtor = [&board](const unsigned char tgtLoc) {
-        return !isOOB(tgtLoc) && !board->board[tgtLoc]->empty && !board->board[tgtLoc]->isWhite;
+    auto vldtor = [&board, &intrpse, &initPos](const unsigned char tgtLoc) {
+        return !isOOB(tgtLoc) && !board->board[tgtLoc]->empty && (intrpse || board->board[tgtLoc]->isWhite != board->board[initPos]->isWhite);
     };
 
     if (board->board[initPos]->pieceID == PAWN) {
@@ -233,27 +244,27 @@ void pawnMov(const Board *const board, const bool tgtMode, const unsigned char i
             if (board->board[initPos]->isWhite) {
                 if (vldtor(initPos - 11))
                     appDta(data, initPos - 11);
-                if (vldtor(initPos - 9))
+                if (vldtor(initPos - 11))
                     appDta(data, initPos - 9);
             } else {
-                if (vldtor(initPos + 11))
+                if (vldtor(initPos - 11))
                     appDta(data, initPos + 11);
-                if (vldtor(initPos + 9))
+                if (vldtor(initPos - 11))
                     appDta(data, initPos + 9);
             }
         } else {
-            char cur;
+            char offPos;
             if (board->board[initPos]->isWhite) {
                 for (int i{board->board[initPos]->fstMove ? 0 : 1}; i < 4; i++) {
-                    cur = initPos + offsets[i];
-                    if (vldPcMv(board, initPos, cur))
-                        appDta(data, cur);
+                    offPos = initPos + offsets[i];
+                    if (vldPcMv(board, initPos, offPos))
+                        appDta(data, offPos);
                 }
             } else {
                 for (int i{4}; i < (board->board[initPos]->fstMove ? 8 : 7); i++) {
-                    cur = initPos + offsets[i];
-                    if (vldPcMv(board, initPos, cur))
-                        appDta(data, cur);
+                    offPos = initPos + offsets[i];
+                    if (vldPcMv(board, initPos, offPos))
+                        appDta(data, offPos);
                 }
             }
         }
@@ -262,7 +273,7 @@ void pawnMov(const Board *const board, const bool tgtMode, const unsigned char i
 
 // Castling does not apply when trying to calculate safe spaces for the king to move
 // so this function doesn't need the tgtMode or intrpse variables
-void castle(const Board *const board, const unsigned char initPos, Array *data) {
+void castle(const Board *const board, const unsigned char initPos, Array *const data) {
     // Todo: Remove lambda function when finished (I use it here to make my code easier to debug when working on it)
     // This does not need to be a function because I will only use this code inside the castle function
     auto vldtor = [&board](const unsigned char initPos, const unsigned char rookPos, const unsigned char finlPos) {

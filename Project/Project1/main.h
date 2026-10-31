@@ -53,6 +53,7 @@ struct Board {
 };
 
 bool deadBrd(const Board *);
+
 bool sfeSpce(const Board *, unsigned char);
 
 // Calculates if the path between two points is unobstructed
@@ -60,11 +61,11 @@ bool sfeSpce(const Board *, unsigned char);
 bool unObPth(const Board *, unsigned char, unsigned char);
 
 // Move Calculation Functions
-void kingMov(const Board *, bool, unsigned char, Array *);
-void lineMov(const Board *,bool, unsigned char, Array *);
-void diagMov(const Board *,bool, unsigned char, Array *);
-void knitMov(const Board *,bool, unsigned char, Array *);
-void pawnMov(const Board *,bool, unsigned char, Array *);
+void kingMov(const Board *, bool, bool, unsigned char, Array *);
+void lineMov(const Board *, bool, bool, unsigned char, Array *);
+void diagMov(const Board *, bool, bool, unsigned char, Array *);
+void knitMov(const Board *, bool, bool, unsigned char, Array *);
+void pawnMov(const Board *, bool, bool, unsigned char, Array *);
 // Target mode not needed, castling only works with kings
 void castle(const Board *, unsigned char, Array *);
 
