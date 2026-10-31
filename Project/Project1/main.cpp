@@ -85,45 +85,42 @@ bool sfeSpce(const Board *const board, const unsigned char tgtPos) {
     return isSafe;
 }
 
-bool unObPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
-    unsigned char start;
-    unsigned char end;
+// Calculates a straight line path between two points, returns an empty array if there is no straight line path
+Array *calcPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
+    Array *path = alloc(10);
 
+    if (initPos != tgtPos) {
+        unsigned char start{initPos <= tgtPos ? initPos : tgtPos};
+        unsigned char end{initPos <= tgtPos ? tgtPos : initPos};
+        int incAmt{0};
+
+        if (abs(initPos % 10 - tgtPos % 10) == abs(initPos / 10 - tgtPos / 10))
+            incAmt = initPos <= tgtPos ? 11 : -9; // Diagonal
+        else if (initPos % 10 == tgtPos % 10)
+            incAmt = 1; // Left/Right
+        else if (initPos / 10 == tgtPos / 10)
+            incAmt = 10; // Up/Down
+        if (incAmt)
+            for (unsigned char current{preInc(start, incAmt)}; current < end && board->board[start]->empty; current += incAmt)
+                appDta(path, current);
+    }
+    return path;
+}
+
+bool unObPth(const Board *const board, const unsigned char initPos, const unsigned char tgtPos) {
     if (initPos == tgtPos)
         return true;
 
-    // Left/Right
-    if (initPos % 10 == tgtPos % 10) {
-        start = initPos <= tgtPos ? initPos : tgtPos;
-        end = initPos <= tgtPos ? tgtPos : initPos;
-        for (; start <= end; start++)
-            if (!board->board[start]->empty)
-                return false;
-        return true;
-    }
+    unsigned char start{initPos <= tgtPos ? initPos : tgtPos};
+    unsigned char end{initPos <= tgtPos ? tgtPos : initPos};
+    Array *path = calcPth(board, initPos, tgtPos);
 
-    // Up/Down
-    if (initPos / 10 == tgtPos / 10) {
-        start = initPos <= tgtPos ? initPos : tgtPos;
-        end = initPos <= tgtPos ? tgtPos : initPos;
-        for (; start <= end; start += 10)
-            if (!board->board[start]->empty)
-                return false;
-        return true;
-    }
-    //
+    if (path->utilSze == 0)
+        return false;
+    bool uobsPth = path->data[0] == start && path->data[path->utilSze - 1] == end;
 
-    // Diagonal
-    if (abs(initPos % 10 - tgtPos % 10) == abs(initPos / 10 - tgtPos / 10)) {
-        start = initPos <= tgtPos ? initPos : tgtPos;
-        end = initPos <= tgtPos ? tgtPos : initPos;
-        int incAmt{initPos <= tgtPos ? 11 : -9};
-        for (; start <= end; start += incAmt)
-            if (!board->board[start]->empty)
-                return false;
-        return true;
-    }
-    return false;
+    dealloc(path);
+    return uobsPth;
 }
 
 void kingMov(const Board *const board, const bool tgtMode, const bool intrpse, const unsigned char initPos, Array *const data) {
@@ -527,9 +524,9 @@ void dealloc(Piece *piece) {
         dealloc(piece->capPth);
 }
 
-unsigned char postDec(unsigned char &val, const int by) {
-    val -= by;
-    return val + by;
+unsigned char preInc(unsigned char &val, const int by) {
+    val += by;
+    return val;
 }
 
 unsigned char postInc(unsigned char &val, const int by) {

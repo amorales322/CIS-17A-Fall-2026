@@ -1,10 +1,14 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <string>
-
+/*
+ *  Piece Enum
+ */
 enum PieceID { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
 
+/*
+ *  Game Structs
+ */
 struct Array {
     unsigned int size;
     unsigned int utilSze;
@@ -52,14 +56,19 @@ struct Board {
     bool deadBrd;
 };
 
+
+/*
+ *  Calculation Functions
+ */
 bool deadBrd(const Board *);
+bool pceIntr(const Board *, unsigned char, unsigned char);
 
 bool sfeSpce(const Board *, unsigned char, bool, Array *);
 // This overload has interpose mode disabled and does not return an array, it only checks if the space is safe
 bool sfeSpce(const Board *, unsigned char);
 
-// Calculates if the path between two points is unobstructed
-// Must be a straight vertical, horizontal, or diagonal line
+Array *calcPth(const Board *, unsigned char, unsigned char);
+// Calculates if the path between two points is unobstructed. Must be a straight vertical, horizontal, or diagonal line
 bool unObPth(const Board *, unsigned char, unsigned char);
 
 // Move Calculation Functions
@@ -71,40 +80,54 @@ void pawnMov(const Board *, bool, bool, unsigned char, Array *);
 // Target mode not needed, castling only works with kings
 void castle(const Board *, unsigned char, Array *);
 
-// User Input & Input Validation
+/*
+ *  User Input & Input/Move Validation
+ */
 unsigned char getInpt();
 bool vldMove(unsigned char, const Array *);
-bool isOOB(unsigned char);
 bool vldPcMv(const Board *, unsigned char, unsigned char);
 
-// Other Functions
+bool isOOB(unsigned char);
+
+/*
+ *  Other Game Functions
+ */
 void mvePce(Board *, unsigned char, unsigned char);
 void pmtePce(Board *, unsigned char);
 
-// Screen Drawing/Clearing
+/*
+ *  Screen Drawing/Clearing
+ */
 void drawBrd(const Board *);
 void clrScrn();
 
-// Allocators
+/*
+ *  Allocators
+ */
 Array *alloc(unsigned int);
 Player *newPlyr();
 
-// Append Functions
+/*
+ *  Array Methods
+ */
+// Append
 void appDta(Array *, unsigned char);
 void appDta(Array *, Array *, bool = true);
 
-// Array Modifier Functions
+// Capacity Modifiers
 void resize(Array *, int = -1);
 void clear(Array *);
 void shrink(Array *);
 
-// Deallocators
+/*
+ *  Deallocators
+ */
 void dealloc(Array *);
 void dealloc(Board *);
 void dealloc(Player *);
 void dealloc(Piece *);
 
-unsigned char postDec(unsigned char &, int);
-
+// Miscellaneous Functions
+unsigned char preInc(unsigned char &, int);
 unsigned char postInc(unsigned char &, int);
 #endif //MAIN_H
