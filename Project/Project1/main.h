@@ -9,10 +9,17 @@ enum PieceID { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
 /*
  *  Game Structs
  */
+
+
+struct Coord {
+    char row;
+    char col;
+};
+
 struct Array {
+    Coord **data;
     unsigned int size;
     unsigned int utilSze;
-    unsigned char *data;
 };
 
 struct Player {
@@ -22,32 +29,26 @@ struct Player {
 };
 
 struct Piece {
+    PieceID pieceID;
     bool empty;
     bool isWhite;
-    PieceID pieceID;
-    // Used for pawns - To determine if they can move two spaces or not
     bool fstMove;
-    // For pawns, if they meet the requirements to capture a piece 'En passant'
-    bool enPasnt;
-    // Valid moves. For the king, this is any safe position it can move to.
-    Array *vldMove;
-
-    // King Variables
+    bool enPasnt; // For pawns if they can be captured via 'en passant'
+    Array *vldMove; // Valid moves. For the king, this is any safe position it can move to.
     bool inCheck;
-    // Paths capture pieces has to king
-    Array *capPth;
+    Array *capPth; // Paths capture pieces has to king
 };
 
 struct Board {
     const unsigned int VERTSZE{10};
     const unsigned int HORZNSZ{10};
-    Piece **board;
+    // Two-dimensional array of pointers to piece structures (heap-allocated/dynamic)
+    Piece ***board;
 
     Player *white;
-    unsigned char wFleLoc;
     Player *black;
+    unsigned char wFleLoc;
     unsigned char bFleLoc;
-
     bool wFstMve;
     bool bFstMve;
 
@@ -61,39 +62,37 @@ struct Board {
  *  Calculation Functions
  */
 bool deadBrd(const Board *);
-bool pceIntr(const Board *, unsigned char, unsigned char);
+bool pceIntr(const Board *, const Coord *, const Coord *, Array *);
 
-bool sfeSpce(const Board *, unsigned char, bool, Array *);
-// This overload has interpose mode disabled and does not return an array, it only checks if the space is safe
-bool sfeSpce(const Board *, unsigned char);
+bool sfeSpce(const Board *, const Coord *, bool, Array *);
+bool sfeSpce(const Board *, const Coord *);
 
-Array *calcPth(const Board *, unsigned char, unsigned char);
-// Calculates if the path between two points is unobstructed. Must be a straight vertical, horizontal, or diagonal line
-bool unObPth(const Board *, unsigned char, unsigned char);
+Array *calcPth(const Board *, const Coord *, const Coord *);
+bool unObPth(const Board *, const Coord *, const Coord *);
 
 // Move Calculation Functions
-void kingMov(const Board *, bool, bool, unsigned char, Array *);
-void lineMov(const Board *, bool, bool, unsigned char, Array *);
-void diagMov(const Board *, bool, bool, unsigned char, Array *);
-void knitMov(const Board *, bool, bool, unsigned char, Array *);
-void pawnMov(const Board *, bool, bool, unsigned char, Array *);
+void kingMov(const Board *, bool, bool, const Coord *, Array *);
+void lineMov(const Board *, bool, bool, const Coord *, Array *);
+void diagMov(const Board *, bool, bool, const Coord *, Array *);
+void knitMov(const Board *, bool, bool, const Coord *, Array *);
+void pawnMov(const Board *, bool, bool, const Coord *, Array *);
 // Target mode not needed, castling only works with kings
-void castle(const Board *, unsigned char, Array *);
+void castle(const Board *, const Coord *, Array *);
 
 /*
  *  User Input & Input/Move Validation
  */
-unsigned char getInpt();
-bool vldMove(unsigned char, const Array *);
-bool vldPcMv(const Board *, unsigned char, unsigned char);
+Coord *getInpt();
+bool vldMove(const Coord *, const Array *);
+bool vldPcMv(const Board *, const Coord *, const Coord *);
 
-bool isOOB(unsigned char);
+bool isOOB(const Coord *);
 
 /*
  *  Other Game Functions
  */
-void mvePce(Board *, unsigned char, unsigned char);
-void pmtePce(Board *, unsigned char);
+void mvePce(Board *, const Coord *, const Coord *);
+void pmtePce(Board *, const Coord *);
 
 /*
  *  Screen Drawing/Clearing
@@ -104,18 +103,20 @@ void clrScrn();
 /*
  *  Allocators
  */
-Array *alloc(unsigned int);
+Array *newArry(size_t);
+Board *newBord();
 Player *newPlyr();
+Coord *newCord(unsigned char, unsigned char);
 
 /*
  *  Array Methods
  */
 // Append
-void appDta(Array *, unsigned char);
-void appDta(Array *, Array *, bool = true);
+void appDta(Array *, const Coord *);
+void appDta(Array *, const Array *);
 
 // Capacity Modifiers
-void resize(Array *, int = -1);
+void resize(Array *, size_t = 0);
 void clear(Array *);
 void shrink(Array *);
 
@@ -123,11 +124,28 @@ void shrink(Array *);
  *  Deallocators
  */
 void dealloc(Array *);
+void dealloc(const Coord *);
 void dealloc(Board *);
 void dealloc(Player *);
 void dealloc(Piece *);
 
 // Miscellaneous Functions
-unsigned char preInc(unsigned char &, int);
-unsigned char postInc(unsigned char &, int);
+void incCord(Coord *, const Coord *);
+void incCord(Coord *, unsigned char, unsigned char);
+Coord *clcCord(unsigned char, int = 0);
+Coord *copyCord(const Coord *);
+
+Coord *walkPth(const Board *, const Coord *, bool, unsigned char, unsigned char, Array *);
+bool tgtChk(bool, bool, const Piece *, const Piece *);
+int search(const Array *, const Coord *);
+
+/*
+ *  Comparison Functions
+ */
+bool lessThn(const Coord *, const Coord *);
+bool lessThn(const Coord*, unsigned char, unsigned char);
+bool lessEq(const Coord *, const Coord *);
+bool lessEq(const Coord *, unsigned char, unsigned char);
+bool isEqual(const Coord *, const Coord *);
+bool isEqual(const Coord *, unsigned char, unsigned char);
 #endif //MAIN_H
