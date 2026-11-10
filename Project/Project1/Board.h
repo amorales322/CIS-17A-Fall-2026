@@ -38,6 +38,10 @@ void dealloc(Board *);
 
 Coord *getInpt();
 
+Coord *fmChsNt(string &);
+
+const char *toChsNt(const Coord *);
+
 Piece *getPce(const Board *, const Coord *);
 
 Piece *getPce(const Board *, size_t, size_t);

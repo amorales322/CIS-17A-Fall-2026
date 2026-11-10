@@ -153,10 +153,21 @@ Coord *getInpt() {
     cin >> input;
 
     if (input.length() == 2 && toupper(input[0]) <= 'H' && toupper(input[0]) >= 'A' && input[1] <= '8' && input[1] >= '1')
-        return newCord(input[1] - 48, toupper(input[0]) - 64);
+        return fmChsNt(input);
 
     cout << "Invalid board coordinate. Enter new board coordinate: ";
     return getInpt();
+}
+
+// const strings was introduced in a recent C++ version (I think C++20), so I just left it as a reference parameter
+// The proper way to do it would be string_view, but I wanted to stick to things we only learned in class
+Coord *fmChsNt(string &pos) {
+    return newCord(pos[1] - 48, toupper(pos[0]) - 64);
+}
+
+const char *toChsNt(const Coord *const pos) {
+    const char chsNot[3]{static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'};
+    return chsNot;
 }
 
 Piece *getPce(const Board *const board, const Coord *const coord) {

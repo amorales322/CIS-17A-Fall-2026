@@ -183,7 +183,7 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool ipo
 }
 
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr &player) {
-    Array *posData = newArry(15);
+    Array *posData = newArry();
     bool isSafe;
     lineMov(board, true, false, tgtPos, posData, player);
     diagMov(board, true, false, tgtPos, posData, player);
@@ -195,8 +195,30 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr 
     return isSafe;
 }
 
+Array *sfeMves(const Board *board, const Coord *kingPos) {
+    Array *vldMves{newArry()};
+    Array *whoChk{newArry()};
+
+    Piece *kingPce{getPce(board, kingPos)};
+
+    // Determines the locations of the pieces that are putting the king in check
+    sfeSpce(board, board->wKngPos, false, whoChk, kingPce->pceClr);
+
+    // Determine which spaces the king can move to, not yet accounting for spaces where the king would still be in check
+    kingMov(board, board->wKngPos, vldMves);
+
+    // Eliminate surrounding spaces the king cannot move to, accounting for ones where the king would still be in check
+    for (size_t i{vldMves->utilSze - 1}; i > 0; i--)
+        if (!sfeSpce(board, vldMves->data[i], kingPce->pceClr))
+            pop(vldMves, i);
+    if (!sfeSpce(board, vldMves->data[0], kingPce->pceClr))
+        pop(vldMves, 0);
+
+    return vldMves;
+}
+
 Array *calcPth(const Board *const board, const Coord *const initPos, const Coord *const tgtPos, const bool incBnds) {
-    Array *path = newArry(10);
+    Array *path = newArry();
 
     if (initPos != tgtPos) {
         const Coord *start{lessEq(initPos, tgtPos) ? initPos : tgtPos};

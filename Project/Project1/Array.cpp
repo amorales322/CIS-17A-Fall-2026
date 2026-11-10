@@ -9,6 +9,12 @@ Array *newArry(const size_t size) {
     return array;
 }
 
+void pntArry(const Array *const array) {
+    for (size_t i{0}; i < array->utilSze; i++)
+        cout << toChsNt(array->data[i]) << ' ';
+    cout << '\n';
+}
+
 void cpyArry(Array *const to, const Array *const from) {
     appDta(to, from);
 }

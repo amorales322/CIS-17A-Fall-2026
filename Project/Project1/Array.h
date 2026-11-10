@@ -2,8 +2,10 @@
 #define ARRAY_H
 
 #include "Coord.h"
+#include "Board.h"
 
-#include <cstddef>
+#include <iostream>
+using namespace std;
 
 struct Array {
     Coord **data;
@@ -11,7 +13,9 @@ struct Array {
     unsigned int utilSze;
 };
 
-Array *newArry(size_t);
+Array *newArry(size_t = 15);
+
+void pntArry(const Array *);
 
 void cpyArry(Array *, const Array *);
 

@@ -61,6 +61,13 @@ bool sfeSpce(const Board *, const Coord *, bool, Array *, const PlyrClr &);
 bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
 
 /*
+ * Determines which spaces are safe for a king to move to
+ *
+ * Returns: Array of safe spaces a king can move to, or an empty array if none exist
+ */
+Array *sfeMves(const Board *, const Coord *);
+
+/*
  * Calculates a straight line path between two points. Bounds default to exclusive.
  *
  * Returns: Empty array if there is no straight line path between the two points, or an array of all points along the path.
