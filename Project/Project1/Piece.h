@@ -20,7 +20,7 @@ struct Piece {
     Array *capPth; // Paths capture pieces has to king
 };
 
-Piece *newPce(PlyrClr = NONE, PieceID = EMPTY);
+Piece *newPce(PlyrClr = PlyrClr::NONE, PieceID = PieceID::EMPTY);
 
 void mvePce(const Piece *, const Piece *);
 

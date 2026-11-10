@@ -2,10 +2,10 @@
 
 Piece *newPce(const PlyrClr pceClr, const PieceID pieceID) {
     Piece *piece = new Piece;
-    if (pceClr == NONE) {
+    if (pceClr == PlyrClr::NONE) {
         piece->empty = true;
-        piece->pceClr = NONE;
-        piece->pieceID = EMPTY;
+        piece->pceClr = PlyrClr::NONE;
+        piece->pieceID = PieceID::EMPTY;
         piece->fstMove = false;
         piece->enPasnt = false;
         piece->inCheck = false;
@@ -46,13 +46,13 @@ void pmtePce(Piece *const piece) {
     piece->enPasnt = false;
     piece->fstMove = false;
     if (usrChce == "Queen")
-        piece->pieceID = QUEEN;
+        piece->pieceID = PieceID::QUEEN;
     else if (usrChce == "Rook")
-        piece->pieceID = ROOK;
+        piece->pieceID = PieceID::ROOK;
     else if (usrChce == "Knight")
-        piece->pieceID = KNIGHT;
+        piece->pieceID = PieceID::KNIGHT;
     else if (usrChce == "Bishop")
-        piece->pieceID = BISHOP;
+        piece->pieceID = PieceID::BISHOP;
 }
 
 void dealloc(Piece *piece) {

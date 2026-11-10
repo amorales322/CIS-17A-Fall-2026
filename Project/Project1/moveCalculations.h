@@ -18,13 +18,13 @@ void kingMov(const Board *, const Coord *, Array *);
  *
  * Returns: Array of all piece positions that can reach the initial location
  */
-void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
+void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
-void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
+void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
-void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
+void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
-void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
+void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
 // Target & Interpose modes not needed, castling only applies to the king
 void castle(const Board *, const Coord *, Array *);

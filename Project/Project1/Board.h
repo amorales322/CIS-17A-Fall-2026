@@ -20,9 +20,9 @@ struct Board {
     unsigned char bFleLoc{0};
     bool wFstMve{true};
     bool bFstMve{true};
-    PlyrClr whoTurn{WHITE};
-    PlyrClr check{NONE};
-    PlyrClr chkmte{NONE};
+    PlyrClr whoTurn{PlyrClr::WHITE};
+    PlyrClr check{PlyrClr::NONE};
+    PlyrClr chkmte{PlyrClr::NONE};
 
     bool stlemte{false};
     bool deadBrd{false};

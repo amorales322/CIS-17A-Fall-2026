@@ -25,7 +25,7 @@ void lineMov(const Board *const board, const bool tgtMode, const bool intrpse, c
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
                 if (tgtChk(intrpse, initPce, tgtPce, player)) {
-                    if (tgtPce->pieceID == QUEEN || tgtPce->pieceID == ROOK)
+                    if (tgtPce->pieceID == PieceID::QUEEN || tgtPce->pieceID == PieceID::ROOK)
                         appDta(data, curPos);
                 }
             } else {
@@ -49,7 +49,7 @@ void diagMov(const Board *const board, const bool tgtMode, const bool intrpse, c
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
                 if (tgtChk(intrpse, initPce, tgtPce, player)) {
-                    if (tgtPce->pieceID == QUEEN || tgtPce->pieceID == BISHOP)
+                    if (tgtPce->pieceID == PieceID::QUEEN || tgtPce->pieceID == PieceID::BISHOP)
                         appDta(data, curPos);
                 }
             } else {
@@ -74,7 +74,7 @@ void knitMov(const Board *const board, const bool tgtMode, const bool intrpse, c
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
                 if (tgtChk(intrpse, initPce, tgtPce, player)) {
-                    if (tgtPce->pieceID == KNIGHT)
+                    if (tgtPce->pieceID == PieceID::KNIGHT)
                         appDta(data, curPos);
                 }
             } else {
@@ -99,22 +99,22 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
     // tgtMode does not need to account for forward (one or two space) because pawns cannot capture forward and cannot move forward to a space if there is a piece occupying that space
     if (tgtMode) {
-        start = player == WHITE ? 2 : 4;
-        end = player == WHITE ? 4 : 6;
+        start = player == PlyrClr::WHITE ? 2 : 4;
+        end = player == PlyrClr::WHITE ? 4 : 6;
 
         for (size_t i{start}; i < end; i++) {
             curPos = copyCord(initPos);
             incrmnt(curPos, &offsets[i]);
             Piece *tgtPce{getPce(board, curPos)};
             if (!isOOB(curPos) && tgtChk(intrpse, initPce, tgtPce, player))
-                if (tgtPce->pieceID == PAWN)
+                if (tgtPce->pieceID == PieceID::PAWN)
                     appDta(data, curPos);
             dealloc(curPos);
         }
     } else {
         // Not in target mode: checking if the piece can move to the final position
-        start = initPce->pceClr == WHITE ? (initPce->fstMove ? 0 : 1) : 4;
-        end = initPce->pceClr == WHITE ? 4 : (initPce->fstMove ? 8 : 7);
+        start = initPce->pceClr == PlyrClr::WHITE ? (initPce->fstMove ? 0 : 1) : 4;
+        end = initPce->pceClr == PlyrClr::WHITE ? 4 : (initPce->fstMove ? 8 : 7);
         for (size_t i{start}; i < end; i++) {
             curPos = copyCord(initPos);
             incrmnt(curPos, &offsets[i]);
@@ -131,13 +131,13 @@ void castle(const Board *const board, const Coord *const initPos, Array *const d
     static const Coord offsets[] = {Coord{8, 1}, Coord{8, 3}, Coord{8, 8}, Coord{8, 7}, Coord{1, 1}, Coord{1, 3}, Coord{1, 8}, Coord{1, 7}};
     Piece *initPce{board->board[initPos->row][initPos->col]};
 
-    if (initPce->pieceID == KING && initPce->fstMove) {
-        size_t start = initPce->pceClr == WHITE ? 0 : 4;
-        size_t end = initPce->pceClr == WHITE ? 4 : 8;
+    if (initPce->pieceID == PieceID::KING && initPce->fstMove) {
+        size_t start = initPce->pceClr == PlyrClr::WHITE ? 0 : 4;
+        size_t end = initPce->pceClr == PlyrClr::WHITE ? 4 : 8;
         for (size_t i{start}; i < end; i += 2) {
             Piece *offPce{getPce(board, &offsets[i])};
             // Todo: Verify that sfeSpce received the correct player color parameter
-            if (offPce->pieceID == ROOK && offPce->fstMove && sfeSpce(board, &offsets[i + 1], initPce->pceClr) && unObPth(board, initPos, &offsets[i]))
+            if (offPce->pieceID == PieceID::ROOK && offPce->fstMove && sfeSpce(board, &offsets[i + 1], initPce->pceClr) && unObPth(board, initPos, &offsets[i]))
                 appDta(data, &offsets[i + 1]);
         }
     }

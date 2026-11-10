@@ -29,10 +29,10 @@ Board *newBord() {
     /*
      *  Test Piece Initialization
      */
-    board->board[5][8] = newPce(BLACK, BISHOP);
-    board->board[7][4] = newPce(BLACK, BISHOP);
+    board->board[5][8] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
+    board->board[7][4] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
     // board->board[7][7] = newPce(BLACK, ROOK);
-    board->board[7][5] = newPce(BLACK, QUEEN);
+    board->board[7][5] = newPce(PlyrClr::BLACK, PieceID::QUEEN);
     // board->board[7][6] = newPce(BLACK, PAWN);
     // board->board[6][7] = newPce(BLACK, PAWN);
     board->board[7][6]->fstMove = false;
@@ -41,13 +41,13 @@ Board *newBord() {
     /*
     *  King Initialization
     */
-    board->board[1][5] = newPce(BLACK, KING);
-    board->board[8][5] = newPce(WHITE, KING);
+    board->board[1][5] = newPce(PlyrClr::BLACK, PieceID::KING);
+    board->board[8][5] = newPce(PlyrClr::WHITE, PieceID::KING);
 
     /*
     *  Queen Initialization
     */
-    board->board[8][4] = newPce(WHITE, QUEEN);
+    board->board[8][4] = newPce(PlyrClr::WHITE, PieceID::QUEEN);
 
     // /*
     // *  Rook Initialization
@@ -80,7 +80,7 @@ bool deadBrd(const Board *const board) {
     // Condition 1: Checks if only kings remain
     for (int row{1}; row < board->VERTSZE - 1; row++) {
         for (int col{1}; col < board->HORZNSZ - 1; col++)
-            if (getPce(board, row, col)->pieceID != KING)
+            if (getPce(board, row, col)->pieceID != PieceID::KING)
                 return false;
     }
 
@@ -102,23 +102,23 @@ void drawBrd(const Board *const board) {
             if (!curPce->empty) {
                 cout << ' ';
                 switch (curPce->pieceID) {
-                    case KING:
-                        cout << (curPce->pceClr == WHITE ? 'K' : 'k');
+                    case PieceID::KING:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'K' : 'k');
                         break;
-                    case QUEEN:
-                        cout << (curPce->pceClr == WHITE ? 'Q' : 'q');
+                    case PieceID::QUEEN:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'Q' : 'q');
                         break;
-                    case ROOK:
-                        cout << (curPce->pceClr == WHITE ? 'R' : 'r');
+                    case PieceID::ROOK:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'R' : 'r');
                         break;
-                    case BISHOP:
-                        cout << (curPce->pceClr == WHITE ? 'B' : 'b');
+                    case PieceID::BISHOP:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'B' : 'b');
                         break;
-                    case KNIGHT:
-                        cout << (curPce->pceClr == WHITE ? 'N' : 'n');
+                    case PieceID::KNIGHT:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'N' : 'n');
                         break;
-                    case PAWN:
-                        cout << (curPce->pceClr == WHITE ? 'P' : 'p');
+                    case PieceID::PAWN:
+                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'P' : 'p');
                         break;
                     default:
                         cout << ' ';
