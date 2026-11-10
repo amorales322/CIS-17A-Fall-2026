@@ -4,10 +4,7 @@
 #include "Board.h"
 
 /*
- * Move Calculation Functions
- */
-
-/* King move does not need target or interpose modes because:
+ * King move does not need target or interpose modes because:
  * 1. Target mode for each piece type is covered with the other functions
  * 2. A piece cannot interpose between adjacent pieces
  */
@@ -16,19 +13,20 @@ void kingMov(const Board *, const Coord *, Array *);
 /*
  * These Functions have three modes
  * 1. Default mode: Returns an array of all positions the piece can move to along a path
- * 2. Target Mode Enabled: Searches along the specified path and returns an array of all pieces along that path that can return to the initial position
- * 3. Target & Interpose Mode Enabled: Searches like target mode, but checks if any pieces on the board can reach a point along the path, and returns the positions of those pieces
+ * 2. Target Mode Enabled: Searches along the specified path and returns an array of all enemy piece positions that can reach the initial position
+ * 3. Target & Interpose Mode Enabled: Searches along the specified path and returns an array of all player piece positions that can reach the initial position
+ *
+ * Returns: Array of all piece positions that can reach the initial location
  */
+void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
 
-void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr &);
+void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
 
-void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr &);
+void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
 
-void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr &);
+void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = NONE);
 
-void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr &);
-
-// Target mode not needed, castling only works with kings
+// Target & Interpose modes not needed, castling only applies to the king
 void castle(const Board *, const Coord *, Array *);
 
 /*
@@ -41,26 +39,41 @@ void castle(const Board *, const Coord *, Array *);
  *
  * Returns: false if there is no straight line path between the king piece and the enemy piece
  */
-bool pceIntr(const Board *board, const Coord *kingPos, const Coord *enmyPos, Array *canIPos, Array *iposWhr);
+bool pceIntr(const Board *board, const Coord *kingPos, const Coord *enmyPos, Array *canIPos, Array *iposWhr, const PlyrClr &);
 
 
 /*
- * Determines if the specified space is safe and returns the position
+ * Determines if the specified space is safe.
  * This function has two modes:
  * 1. Interpose Mode Disabled: Calculates if any of the enemy's pieces can reach the target location
  * 2. Interpose Mode Enabled: Calculates if any of the players pieces can reach the target location
+ *
+ * Returns: If the specified space is safe & array of pieces that can reach the target location
  */
 
-bool sfeSpce(const Board *, const Coord *, bool, Array *);
+bool sfeSpce(const Board *, const Coord *, bool, Array *, const PlyrClr &);
 
-bool sfeSpce(const Board *, const Coord *);
+/*
+ * Determines if the specified space is safe.
+ *
+ * Returns: If the specified space is safe
+ */
+bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
 
+/*
+ * Calculates a straight line path between two points. Bounds default to exclusive.
+ *
+ * Returns: Empty array if there is no straight line path between the two points, or an array of all points along the path.
+ *
+ */
 Array *calcPth(const Board *, const Coord *, const Coord *, bool = false);
 
 /*
  * Walks a straight line path between two points until it goes out of bounds or stops at a piece, and returns the final position
+ *
+ * Returns: The final position along the path
  */
-Coord *walkPth(const Board *, const Coord *, unsigned char, unsigned char);
+Coord *walkPth(const Board *, const Coord *, char, char);
 
 
 /*
@@ -68,10 +81,19 @@ Coord *walkPth(const Board *, const Coord *, unsigned char, unsigned char);
  */
 bool unObPth(const Board *, const Coord *, const Coord *);
 
+/*
+ * Checks a specific move against an array of valid positions to move to.
+ */
 bool vldMove(const Coord *, const Array *);
 
+/*
+ * Checks if a piece can move to a new position.
+ */
 bool vldPcMv(const Board *, const Piece *, const Coord *);
 
+/*
+ * Check used for target mode.
+ */
 bool tgtChk(bool, const Piece *, const Piece *, const PlyrClr &);
 
 #endif

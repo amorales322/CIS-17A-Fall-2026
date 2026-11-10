@@ -10,13 +10,9 @@ Board *newBord() {
     // Piece Initialization
     for (int row{0}; row < board->VERTSZE; row++) {
         board->board[row] = new Piece *[board->HORZNSZ];
-        for (int col{0}; col < board->HORZNSZ; col++) {
-            board->board[row][col] = new Piece;
-            board->board[row][col]->empty = true;
-        }
+        for (int col{0}; col < board->HORZNSZ; col++)
+            board->board[row][col] = newPce();
     }
-
-    board->check = WHITE;
 
     // /*
     //  *  Pawn Initialization
@@ -33,23 +29,25 @@ Board *newBord() {
     /*
      *  Test Piece Initialization
      */
-    board->board[5][8] = newPce(BISHOP, false);
-    board->board[7][4] = newPce(BISHOP, false);
-    board->board[7][7] = newPce(ROOK, false);
-    // newPce(board, QUEEN, false, 7, 5);
-    // newPce(board, KNIGHT, false, 6, 6);
+    board->board[5][8] = newPce(BLACK, BISHOP);
+    board->board[7][4] = newPce(BLACK, BISHOP);
+    // board->board[7][7] = newPce(BLACK, ROOK);
+    board->board[7][5] = newPce(BLACK, QUEEN);
+    // board->board[7][6] = newPce(BLACK, PAWN);
+    // board->board[6][7] = newPce(BLACK, PAWN);
+    board->board[7][6]->fstMove = false;
 
 
     /*
     *  King Initialization
     */
-    board->board[1][5] = newPce(KING, false);
-    board->board[8][5] = newPce(KING, true);
+    board->board[1][5] = newPce(BLACK, KING);
+    board->board[8][5] = newPce(WHITE, KING);
 
     /*
     *  Queen Initialization
     */
-    board->board[8][4] = newPce(QUEEN, true);
+    board->board[8][4] = newPce(WHITE, QUEEN);
 
     // /*
     // *  Rook Initialization
@@ -105,22 +103,22 @@ void drawBrd(const Board *const board) {
                 cout << ' ';
                 switch (curPce->pieceID) {
                     case KING:
-                        cout << (curPce->isWhite ? 'K' : 'k');
+                        cout << (curPce->pceClr == WHITE ? 'K' : 'k');
                         break;
                     case QUEEN:
-                        cout << (curPce->isWhite ? 'Q' : 'q');
+                        cout << (curPce->pceClr == WHITE ? 'Q' : 'q');
                         break;
                     case ROOK:
-                        cout << (curPce->isWhite ? 'R' : 'r');
+                        cout << (curPce->pceClr == WHITE ? 'R' : 'r');
                         break;
                     case BISHOP:
-                        cout << (curPce->isWhite ? 'B' : 'b');
+                        cout << (curPce->pceClr == WHITE ? 'B' : 'b');
                         break;
                     case KNIGHT:
-                        cout << (curPce->isWhite ? 'N' : 'n');
+                        cout << (curPce->pceClr == WHITE ? 'N' : 'n');
                         break;
                     case PAWN:
-                        cout << (curPce->isWhite ? 'P' : 'p');
+                        cout << (curPce->pceClr == WHITE ? 'P' : 'p');
                         break;
                     default:
                         cout << ' ';
@@ -162,14 +160,10 @@ Coord *getInpt() {
 }
 
 Piece *getPce(const Board *const board, const Coord *const coord) {
-    if (isOOB(coord))
-        return nullptr;
     return board->board[coord->row][coord->col];
 }
 
 Piece *getPce(const Board *const board, const size_t row, const size_t col) {
-    if (isOOB(row, col))
-        return nullptr;
     return board->board[row][col];
 }
 

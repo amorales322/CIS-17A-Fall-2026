@@ -3,14 +3,16 @@
 
 #include "Array.h"
 #include "PieceID.h"
+#include "PlyrClr.h"
 
 #include <iostream>
+
 using namespace std;
 
 struct Piece {
     PieceID pieceID;
     bool empty;
-    bool isWhite;
+    PlyrClr pceClr;
     bool fstMove;
     bool enPasnt; // For pawns if they can be captured via 'en passant'
     bool inCheck;
@@ -18,7 +20,7 @@ struct Piece {
     Array *capPth; // Paths capture pieces has to king
 };
 
-Piece *newPce(PieceID, bool);
+Piece *newPce(PlyrClr = NONE, PieceID = EMPTY);
 
 void mvePce(const Piece *, const Piece *);
 

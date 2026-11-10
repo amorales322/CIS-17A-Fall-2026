@@ -1,17 +1,25 @@
 #include "Piece.h"
 
-Piece *newPce(const PieceID pieceID, const bool isWhite) {
+Piece *newPce(const PlyrClr pceClr, const PieceID pieceID) {
     Piece *piece = new Piece;
-    piece->empty = false;
-    piece->isWhite = isWhite;
-    piece->pieceID = pieceID;
-    piece->fstMove = true;
-    piece->enPasnt = false;
-    piece->inCheck = false;
+    if (pceClr == NONE) {
+        piece->empty = true;
+        piece->pceClr = NONE;
+        piece->pieceID = EMPTY;
+        piece->fstMove = false;
+        piece->enPasnt = false;
+        piece->inCheck = false;
+    } else {
+        piece->empty = false;
+        piece->pceClr = pceClr;
+        piece->pieceID = pieceID;
+        piece->fstMove = true;
+        piece->enPasnt = false;
+        piece->inCheck = false;
+    }
 
     return piece;
 }
-
 
 
 void mvePce(const Piece *a, const Piece *b) {
@@ -20,7 +28,7 @@ void mvePce(const Piece *a, const Piece *b) {
     b = tmp;
 }
 
-void pmtePce(Piece * const piece) {
+void pmtePce(Piece *const piece) {
     string usrChce;
     cout << "Your pawn is able to promote! Which piece would you like to promote it with: ";
     cout << "1. Queen\n";

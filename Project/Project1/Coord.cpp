@@ -13,7 +13,7 @@ void incrmnt(Coord *const val, const Coord *const by) {
     val->col += by->col;
 }
 
-void incrmnt(Coord *const val, const unsigned char row, const unsigned char col) {
+void incrmnt(Coord *const val, const char row, const char col) {
     val->row += row;
     val->col += col;
 }

@@ -10,7 +10,7 @@ struct Coord {
 Coord *newCord(unsigned char, unsigned char);
 
 void incrmnt(Coord *, const Coord *);
-void incrmnt(Coord *, unsigned char, unsigned char);
+void incrmnt(Coord *, char, char);
 
 Coord *copyCord(const Coord *);
 
