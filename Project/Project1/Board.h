@@ -4,10 +4,24 @@
 #include "Piece.h"
 #include "Player.h"
 #include "PlyrClr.h"
+#include "fileUtil.h"
+
+#include <fstream>
+using namespace std;
+
 
 struct Board {
     const unsigned char VERTSZE{10};
     const unsigned char HORZNSZ{10};
+    bool wFstMve;
+    bool bFstMve;
+    PlyrClr whoTurn;
+    PlyrClr check;
+    PlyrClr chkmte;
+
+    bool stlemte;
+    bool deadPos;
+
     // Two-dimensional array of pointers to piece structures (heap-allocated/dynamic)
     Piece ***board;
 
@@ -15,28 +29,31 @@ struct Board {
     Coord *wKngPos;
     Player *black;
     Coord *bKngPos;
-
-    unsigned char wFleLoc{0};
-    unsigned char bFleLoc{0};
-    bool wFstMve{true};
-    bool bFstMve{true};
-    PlyrClr whoTurn{PlyrClr::WHITE};
-    PlyrClr check{PlyrClr::NONE};
-    PlyrClr chkmte{PlyrClr::NONE};
-
-    bool stlemte{false};
-    bool deadBrd{false};
 };
 
-Board *newBord();
+Board *newBord(fstream &, fstream &, fstream &, bool);
 
-bool deadBrd(const Board *);
+void toFile(fstream &, fstream &, fstream &, Board *);
+
+void rstBrd(Board *);
+
+void alocPce(Board *);
+
+bool deadPos(const Board *);
 
 void drawBrd(const Board *);
 
 void dealloc(Board *);
 
+void dealloc(Piece ***, size_t, size_t);
+
 Coord *getInpt();
+
+bool getOpt();
+
+string getFPth();
+
+void opnFile(fstream &, const string &);
 
 Piece *getPce(const Board *, const Coord *);
 

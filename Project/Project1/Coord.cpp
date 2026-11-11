@@ -8,6 +8,16 @@ Coord *newCord(const unsigned char row, const unsigned char col) {
     return tuple;
 }
 
+Coord *newCord(fstream &file) {
+    Coord *tuple = new Coord;
+    file.read(reinterpret_cast<char *>(tuple), sizeof(Coord));
+    return tuple;
+}
+
+void toFile(fstream &file, Coord *coord) {
+    file.write(reinterpret_cast<char *>(coord), sizeof(Coord));
+}
+
 Coord *fmChsNt(const string &pos) {
     return newCord(pos[1] - 48, toupper(pos[0]) - 64);
 }

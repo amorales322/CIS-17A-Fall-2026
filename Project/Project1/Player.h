@@ -3,6 +3,8 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
+
 using namespace std;
 
 struct Player {
@@ -11,7 +13,9 @@ struct Player {
     string name;
 };
 
-Player *newPlyr();
+Player *newPlyr(fstream &, bool);
+
+void toFile(fstream &, Player *);
 
 void dealloc(Player *);
 

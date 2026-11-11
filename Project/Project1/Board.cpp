@@ -1,11 +1,95 @@
 #include "Board.h"
 
-Board *newBord() {
-    // Todo: Restore game board from file
+Board *newBord(fstream &gmeFile, fstream &plyr1, fstream &plyr2, bool frmFile) {
+    gmeFile.seekg(0, ios::beg);
     Board *board = new Board;
-    board->board = new Piece **[board->VERTSZE];
+    cin.ignore();
+    board->white = newPlyr(plyr1, frmFile);
+    board->black = newPlyr(plyr2, frmFile);
+
+    if (frmFile) {
+        read(gmeFile, board->wFstMve);
+        read(gmeFile, board->bFstMve);
+        read(gmeFile, board->whoTurn);
+        read(gmeFile, board->check);
+        read(gmeFile, board->chkmte);
+        read(gmeFile, board->stlemte);
+        read(gmeFile, board->deadPos);
+        board->board = new Piece **[board->VERTSZE];
+        for (int row{0}; row < board->VERTSZE; row++) {
+            board->board[row] = new Piece *[board->HORZNSZ];
+            for (int col{0}; col < board->HORZNSZ; col++) {
+                board->board[row][col] = newPce(gmeFile);
+            }
+        }
+        board->wKngPos = newCord(gmeFile);
+        board->bKngPos = newCord(gmeFile);
+    } else {
+        alocPce(board);
+        board->wFstMve = true;
+        board->bFstMve = true;
+        board->whoTurn = PlyrClr::WHITE;
+        board->check = PlyrClr::NONE;
+        board->chkmte = PlyrClr::NONE;
+        board->stlemte = false;
+        board->deadPos = false;
+        board->wKngPos = newCord(8, 5);
+        board->bKngPos = newCord(1, 5);
+    }
+
+    // board->board[1][5] = newPce(PlyrClr::BLACK, PieceID::KING);
+    // board->board[8][5] = newPce(PlyrClr::WHITE, PieceID::KING);
+
+    // board->board[1][1] = newPce(PlyrClr::BLACK, PieceID::ROOK);
+    // board->board[1][8] = newPce(PlyrClr::BLACK, PieceID::ROOK);
+
+    return board;
+}
+
+void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, Board *const board) {
+    // Save Player Data
+    toFile(plyr1, board->white);
+    toFile(plyr2, board->black);
+
+    // Save Game Data
+    gmeFile.seekp(0, ios::beg);
+    write(gmeFile, board->wFstMve);
+    write(gmeFile, board->bFstMve);
+    write(gmeFile, board->whoTurn);
+    write(gmeFile, board->check);
+    write(gmeFile, board->chkmte);
+    write(gmeFile, board->stlemte);
+    write(gmeFile, board->deadPos);
+
+
+    for (int row{0}; row < board->VERTSZE; row++)
+        for (int col{0}; col < board->VERTSZE; col++)
+            toFile(gmeFile, board->board[row][col]);
+
+    toFile(gmeFile, board->wKngPos);
+    toFile(gmeFile, board->bKngPos);
+}
+
+void rstBrd(Board *const board) {
+    dealloc(board->wKngPos);
+    dealloc(board->bKngPos);
+    dealloc(board->board, board->VERTSZE, board->HORZNSZ);
+
+    alocPce(board);
     board->wKngPos = newCord(8, 5);
     board->bKngPos = newCord(1, 5);
+
+    board->wFstMve = true;
+    board->bFstMve = true;
+    board->whoTurn = PlyrClr::WHITE;
+    board->check = PlyrClr::NONE;
+    board->chkmte = PlyrClr::NONE;
+    board->stlemte = false;
+    board->deadPos = false;
+}
+
+void alocPce(Board *const board) {
+    board->board = new Piece **[board->VERTSZE];
 
     // Piece Initialization
     for (int row{0}; row < board->VERTSZE; row++) {
@@ -21,7 +105,6 @@ Board *newBord() {
         board->board[2][col] = newPce(PlyrClr::BLACK, PieceID::PAWN);
         board->board[7][col] = newPce(PlyrClr::WHITE, PieceID::PAWN);
     }
-
 
     /*
     *  King Initialization
@@ -62,11 +145,9 @@ Board *newBord() {
 
     board->board[8][2] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
     board->board[8][7] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
-
-    return board;
 }
 
-bool deadBrd(const Board *const board) {
+bool deadPos(const Board *const board) {
     // Condition 1: Checks if only kings remain
     for (int row{1}; row < board->VERTSZE - 1; row++) {
         for (int col{1}; col < board->HORZNSZ - 1; col++)
@@ -198,12 +279,7 @@ void drawBrd(const Board *const board) {
 }
 
 void dealloc(Board *board) {
-    for (size_t row{0}; row < board->VERTSZE; row++) {
-        for (size_t col{0}; col < board->VERTSZE; col++)
-            dealloc(getPce(board, row, col));
-        delete []board->board[row];
-    }
-    delete []board->board;
+    dealloc(board->board, board->VERTSZE, board->HORZNSZ);
 
     delete board->wKngPos;
     delete board->bKngPos;
@@ -211,6 +287,17 @@ void dealloc(Board *board) {
     dealloc(board->black);
 
     delete board;
+    board = nullptr;
+}
+
+void dealloc(Piece ***pceArry, const size_t vertSze, const size_t horzSze) {
+    for (size_t row{0}; row < vertSze; row++) {
+        for (size_t col{0}; col < horzSze; col++)
+            dealloc(pceArry[row][col]);
+        delete []pceArry[row];
+    }
+    delete []pceArry;
+    pceArry = nullptr;
 }
 
 Coord *getInpt() {
@@ -222,6 +309,35 @@ Coord *getInpt() {
 
     cout << "Invalid board coordinate. Enter new board coordinate: ";
     return getInpt();
+}
+
+bool getOpt() {
+    char opt;
+    cin >> opt;
+    opt = static_cast<char>(toupper(opt));
+    if (opt == 'Y' || opt == 'N')
+        return opt == 'Y';
+
+    cout << "Invalid option, enter new option: ";
+    return getOpt();
+}
+
+string getFPth() {
+    string input{};
+    cin >> input;
+    if (input.find(".bin") != string::npos)
+        return input;
+    cout << "Invalid file, enter new file: ";
+    return getFPth();
+}
+
+void opnFile(fstream &file, const string &filePth) {
+    file.open(filePth, ios::binary | ios::in | ios::out);
+    if (!file.is_open()) {
+        cout << "File does not exist. Creating new file.\n";
+        file.open(filePth, ios::binary | ios::in | ios::out | ios::trunc);
+    } else
+        file.seekg(0, ios::end);
 }
 
 Piece *getPce(const Board *const board, const Coord *const coord) {

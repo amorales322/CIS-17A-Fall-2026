@@ -21,6 +21,15 @@ Piece *newPce(const PlyrClr pceClr, const PieceID pieceID) {
     return piece;
 }
 
+Piece *newPce(fstream &file) {
+    Piece *piece = new Piece;
+    file.read(reinterpret_cast<char *>(piece), sizeof(Piece));
+    return piece;
+}
+
+void toFile(fstream &gmeFile, Piece *piece) {
+    gmeFile.write(reinterpret_cast<char *>(piece), sizeof(Piece));
+}
 
 void mvePce(const Piece *a, const Piece *b) {
     const Piece *tmp{a};
@@ -56,10 +65,10 @@ void pmtePce(Piece *const piece) {
 }
 
 void dealloc(Piece *piece) {
-    if (piece->vldMove != nullptr)
-        dealloc(piece->vldMove);
-    if (piece->capPth != nullptr)
-        dealloc(piece->capPth);
+    // if (piece->vldMove != nullptr)
+    //     dealloc(piece->vldMove);
+    // if (piece->capPth != nullptr)
+    //     dealloc(piece->capPth);
     delete piece;
 }
 

@@ -1,20 +1,27 @@
 #include "Player.h"
+#include "fileUtil.h"
 
-Player *newPlyr() {
-    // Todo: Load player from file
+Player *newPlyr(fstream &file, const bool frmFile) {
     Player *player = new Player;
-    player->nWins = 0;
-    player->nLoss = 0;
-
-    cout << "Enter your name (35 Characters or Less): ";
-    cin.ignore();
-    getline(cin, player->name);
-    while (player->name.length() > 35) {
-        cout << "Your name is too long. Enter a shorter name: ";
+    if (frmFile) {
+        file.seekp(0, ios::beg);
+        read(file, player->nWins);
+        read(file, player->nWins);
+        read(file, player->name);
+    } else {
+        player->nWins = 0;
+        player->nLoss = 0;
+        cout << "Enter your name: ";
         getline(cin, player->name);
     }
-
     return player;
+}
+
+void toFile(fstream &file, Player *player) {
+    file.seekp(0, ios::beg);
+    write(file, player->nWins);
+    write(file, player->nLoss);
+    write(file, player->name);
 }
 
 void dealloc(Player *player) {

@@ -2,6 +2,7 @@
 #define COORD_H
 
 #include <string>
+#include <fstream>
 using namespace std;
 
 struct Coord {
@@ -12,11 +13,16 @@ struct Coord {
 
 Coord *newCord(unsigned char, unsigned char);
 
+Coord *newCord(fstream &);
+
+void toFile(fstream &, Coord *);
+
 Coord *fmChsNt(const string &);
 
 string toChsNt(const Coord *);
 
 void incrmnt(Coord *, const Coord *);
+
 void incrmnt(Coord *, char, char);
 
 Coord *copyCord(const Coord *);

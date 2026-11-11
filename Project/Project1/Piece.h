@@ -6,11 +6,8 @@
 #include "PlyrClr.h"
 #include "ASCII.h"
 
-
-// enum class PieceID : unsigned char { EMPTY, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
-
 #include <iostream>
-#include <cstring>
+#include <fstream>
 
 using namespace std;
 
@@ -21,11 +18,15 @@ struct Piece {
     bool fstMove;
     bool enPasnt; // For pawns if they can be captured via 'en passant'
     bool inCheck;
-    Array *vldMove; // Valid moves. For the king, this is any safe position it can move to.
-    Array *capPth; // Paths capture pieces has to king
+    // Array *vldMove; // Valid moves. For the king, this is any safe position it can move to.
+    // Array *capPth; // Paths capture pieces has to king
 };
 
 Piece *newPce(PlyrClr = PlyrClr::NONE, PieceID = PieceID::EMPTY);
+
+Piece *newPce(fstream &);
+
+void toFile(fstream &file, Piece *);
 
 void mvePce(const Piece *, const Piece *);
 
