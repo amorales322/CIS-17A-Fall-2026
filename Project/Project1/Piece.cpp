@@ -63,68 +63,6 @@ void dealloc(Piece *piece) {
     delete piece;
 }
 
-size_t clcLftW(size_t width) {
-    return width % 2 == 0 ? width / 2 : width / 2 + 1;
-}
-
-size_t clcRgtW(size_t width) {
-    return width / 2;
-}
-
-string getBlnk(const size_t width, const bool ligtCel) {
-    return string(width, ligtCel ? '#' : ' ');
-}
-
-string getBlnk(const size_t width, const char fillChr) {
-    return string(width, fillChr);
-}
-
-void drwBlRw(const bool lghtCel) {
-    cout << '|' << getBlnk(23, lghtCel);
-}
-
-void drClmRw(const char *content, const bool lghtCel) {
-    static const size_t width{23};
-    size_t remWdth{width - strlen(content) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << content << ' ' << getBlnk(rgtWdth, lghtCel);
-}
-
-void drClmRw(const char *left, const char *right, const size_t inrWdth, const bool lghtCel, const char filChar) {
-    static const size_t width{23};
-    size_t remWdth{width - inrWdth - strlen(left) - strlen(right) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << getBlnk(inrWdth, filChar) << right << ' ' << getBlnk(rgtWdth, lghtCel);
-}
-
-void drClmRw(const char *left, const char *right, const size_t inrWdth, const bool lghtCel, const PlyrClr &player) {
-    static const size_t width{23};
-    size_t remWdth{width - inrWdth - strlen(left) - strlen(right) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << (player == PlyrClr::WHITE ? getBlnk(inrWdth, '#') : getBlnk(inrWdth, ' ')) << right << ' ' <<
-            getBlnk(rgtWdth, lghtCel);
-}
-
-void drClmRw(const char *left, const char *right, const size_t inrWdth, const bool lghtCel, const PlyrClr &player, const char filChar) {
-    static const size_t width{23};
-    size_t remWdth{width - inrWdth - strlen(left) - strlen(right) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << (player == PlyrClr::WHITE ? getBlnk(inrWdth, '#') : getBlnk(inrWdth, filChar)) << right << ' ' <<
-            getBlnk(rgtWdth, lghtCel);
-}
-
 void drwKing(const bool light, const size_t row, const PlyrClr &player) {
     switch (row) {
         case 0:

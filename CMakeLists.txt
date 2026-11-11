@@ -10,4 +10,5 @@ add_executable(CIS_17A_Fall_2026 Project/Project1/main.cpp
         Project/Project1/Board.cpp
         Project/Project1/Player.cpp
         Project/Project1/Piece.cpp
-        Project/Project1/Coord.cpp)
+        Project/Project1/Coord.cpp
+        Project/Project1/ASCII.cpp)

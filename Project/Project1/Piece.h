@@ -4,6 +4,7 @@
 #include "Array.h"
 #include "PieceID.h"
 #include "PlyrClr.h"
+#include "ASCII.h"
 
 
 // enum class PieceID : unsigned char { EMPTY, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
@@ -36,18 +37,6 @@ void dealloc(Piece *);
 /*
  * Piece Drawing Functions
  */
-size_t clcLftW(size_t);
-size_t clcRgtW(size_t);
-
-string getBlnk(size_t, bool);
-string getBlnk(size_t, char);
-
-void drwBlRw(bool);
-
-void drClmRw(const char *, bool);
-void drClmRw(const char *, const char *, size_t, bool, char);
-void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &);
-void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &, char);
 
 void drwKing(bool, size_t, const PlyrClr &);
 void drwQuen(bool, size_t, const PlyrClr &);

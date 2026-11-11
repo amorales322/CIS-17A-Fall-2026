@@ -85,45 +85,113 @@ void drawBrd(const Board *const board) {
     static const size_t width{23};
     Piece *curPce;
     bool lghtCel;
+
+    for (int cellRow{3}; cellRow < 9; cellRow++) {
+        for (int col{0}; col < board->HORZNSZ - 1; col++) {
+            switch (col) {
+                case 1:
+                    drawA(cellRow);
+                    break;
+                case 2:
+                    drawB(cellRow);
+                    break;
+                case 3:
+                    drawC(cellRow);
+                    break;
+                case 4:
+                    drawD(cellRow);
+                    break;
+                case 5:
+                    drawE(cellRow);
+                    break;
+                case 6:
+                    drawF(cellRow);
+                    break;
+                case 7:
+                    drawG(cellRow);
+                    break;
+                case 8:
+                    drawH(cellRow);
+                    break;
+                default:
+                    cout << getBlnk(24, false);
+            }
+        }
+        cout << "\n";
+    }
+
     for (int row{1}; row < board->VERTSZE - 1; row++) {
         // Draw top of cell
+        cout << getBlnk(24, false);
         for (int col{1}; col < board->HORZNSZ - 1; col++)
             cout << '+' << string(width, '-');
         cout << "+\n";
         for (int cellRow{0}; cellRow < 11; cellRow++) {
-            for (int col{1}; col < board->HORZNSZ - 1; col++) {
-                curPce = getPce(board, row, col);
-                lghtCel = (col + row - 1) % 2 != 0;
-                if (!curPce->empty) {
-                    switch (curPce->pieceID) {
-                        case PieceID::KING:
-                            drwKing(lghtCel, cellRow, curPce->pceClr);
+            for (int col{0}; col < board->HORZNSZ - 1; col++) {
+                if (col == 0) {
+                    switch (row) {
+                        case 1:
+                            draw1(cellRow);
                             break;
-                        case PieceID::QUEEN:
-                            drwQuen(lghtCel, cellRow, curPce->pceClr);
+                        case 2:
+                            draw2(cellRow);
                             break;
-                        case PieceID::ROOK:
-                            drwRook(lghtCel, cellRow, curPce->pceClr);
+                        case 3:
+                            draw3(cellRow);
                             break;
-                        case PieceID::BISHOP:
-                            drwBshp(lghtCel, cellRow, curPce->pceClr);
+                        case 4:
+                            draw4(cellRow);
                             break;
-                        case PieceID::KNIGHT:
-                            drwKnit(lghtCel, cellRow, curPce->pceClr);
+                        case 5:
+                            draw5(cellRow);
                             break;
-                        case PieceID::PAWN:
-                            drwPawn(lghtCel, cellRow, curPce->pceClr);
+                        case 6:
+                            draw6(cellRow);
+                            break;
+                        case 7:
+                            draw7(cellRow);
+                            break;
+                        case 8:
+                            draw8(cellRow);
                             break;
                         default:
-                            drwBlRw(lghtCel);
+                            cout << getBlnk(24, false);
                     }
-                } else
-                    drwBlRw(lghtCel);
+                } else {
+                    curPce = getPce(board, row, col);
+                    lghtCel = (col + row - 1) % 2 != 0;
+                    if (!curPce->empty) {
+                        switch (curPce->pieceID) {
+                            case PieceID::KING:
+                                drwKing(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            case PieceID::QUEEN:
+                                drwQuen(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            case PieceID::ROOK:
+                                drwRook(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            case PieceID::BISHOP:
+                                drwBshp(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            case PieceID::KNIGHT:
+                                drwKnit(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            case PieceID::PAWN:
+                                drwPawn(lghtCel, cellRow, curPce->pceClr);
+                                break;
+                            default:
+                                drwBlRw(lghtCel);
+                        }
+                    } else
+                        drwBlRw(lghtCel);
+                }
             }
             cout << "|\n";
         }
     }
     // Draw bottom of board
+    cout << getBlnk(24, false);
     for (int col{1}; col < board->HORZNSZ - 1; col++)
         cout << '+' << string(width, '-');
     cout << "+\n";
