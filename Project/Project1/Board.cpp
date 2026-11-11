@@ -14,28 +14,13 @@ Board *newBord() {
             board->board[row][col] = newPce();
     }
 
-    // /*
-    //  *  Pawn Initialization
-    //  */
-    // for (int i{21}; i < 29; i++) {
-    //     Coord *coord = clcCord(i);
-    //     Coord *coord2 = clcCord(i, 50);
-    //     newPce(board, PAWN, false, coord->row, coord->col);
-    //     newPce(board, PAWN, true, coord2->row, coord2->col);
-    //     dealloc(coord);
-    //     dealloc(coord2);
-    // }
-
     /*
-     *  Test Piece Initialization
+     *  Pawn Initialization
      */
-    board->board[5][8] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
-    board->board[7][4] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
-    // board->board[7][7] = newPce(BLACK, ROOK);
-    board->board[7][5] = newPce(PlyrClr::BLACK, PieceID::QUEEN);
-    // board->board[7][6] = newPce(BLACK, PAWN);
-    // board->board[6][7] = newPce(BLACK, PAWN);
-    board->board[7][6]->fstMove = false;
+    for (int col{1}; col < 9; col++) {
+        board->board[2][col] = newPce(PlyrClr::BLACK, PieceID::PAWN);
+        board->board[7][col] = newPce(PlyrClr::WHITE, PieceID::PAWN);
+    }
 
 
     /*
@@ -47,31 +32,36 @@ Board *newBord() {
     /*
     *  Queen Initialization
     */
+    board->board[1][4] = newPce(PlyrClr::BLACK, PieceID::QUEEN);
     board->board[8][4] = newPce(PlyrClr::WHITE, PieceID::QUEEN);
 
-    // /*
-    // *  Rook Initialization
-    // */
-    // newPce(board, ROOK, false, 1, 1);
-    // newPce(board, ROOK, false, 1, 8);
-    // newPce(board, ROOK, true, 8, 1);
-    // newPce(board, ROOK, true, 8, 8);
-    //
-    // /*
-    // *  Bishop Initialization
-    // */
-    // newPce(board, BISHOP, false, 1, 3);
-    // newPce(board, BISHOP, false, 1, 6);
-    // newPce(board, BISHOP, true, 8, 3);
-    // newPce(board, BISHOP, true, 8, 6);
-    //
-    // /*
-    // *  Knight Initialization
-    // */
-    // newPce(board, KNIGHT, false, 1, 2);
-    // newPce(board, KNIGHT, false, 1, 7);
-    // newPce(board, KNIGHT, true, 8, 2);
-    // newPce(board, KNIGHT, true, 8, 7);
+    /*
+    *  Rook Initialization
+    */
+    board->board[1][1] = newPce(PlyrClr::BLACK, PieceID::ROOK);
+    board->board[1][8] = newPce(PlyrClr::BLACK, PieceID::ROOK);
+
+    board->board[8][1] = newPce(PlyrClr::WHITE, PieceID::ROOK);
+    board->board[8][8] = newPce(PlyrClr::WHITE, PieceID::ROOK);
+
+    /*
+    *  Bishop Initialization
+    */
+    board->board[1][3] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
+    board->board[1][6] = newPce(PlyrClr::BLACK, PieceID::BISHOP);
+
+    board->board[8][3] = newPce(PlyrClr::WHITE, PieceID::BISHOP);
+    board->board[8][6] = newPce(PlyrClr::WHITE, PieceID::BISHOP);
+
+
+    /*
+    *  Knight Initialization
+    */
+    board->board[1][2] = newPce(PlyrClr::BLACK, PieceID::KNIGHT);
+    board->board[1][7] = newPce(PlyrClr::BLACK, PieceID::KNIGHT);
+
+    board->board[8][2] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
+    board->board[8][7] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
 
     return board;
 }
@@ -92,44 +82,51 @@ bool deadBrd(const Board *const board) {
 }
 
 void drawBrd(const Board *const board) {
+    static const size_t width{23};
     Piece *curPce;
-    cout << "     a   b   c   d   e   f   g   h\n";
+    bool lghtCel;
     for (int row{1}; row < board->VERTSZE - 1; row++) {
-        cout << "   +---+---+---+---+---+---+---+---+\n";
-        cout << " " << row << " |";
-        for (int col{1}; col < board->HORZNSZ - 1; col++) {
-            curPce = getPce(board, row, col);
-            if (!curPce->empty) {
-                cout << ' ';
-                switch (curPce->pieceID) {
-                    case PieceID::KING:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'K' : 'k');
-                        break;
-                    case PieceID::QUEEN:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'Q' : 'q');
-                        break;
-                    case PieceID::ROOK:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'R' : 'r');
-                        break;
-                    case PieceID::BISHOP:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'B' : 'b');
-                        break;
-                    case PieceID::KNIGHT:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'N' : 'n');
-                        break;
-                    case PieceID::PAWN:
-                        cout << (curPce->pceClr == PlyrClr::WHITE ? 'P' : 'p');
-                        break;
-                    default:
-                        cout << ' ';
-                }
-                cout << " |";
-            } else
-                cout << " * |";
+        // Draw top of cell
+        for (int col{1}; col < board->HORZNSZ - 1; col++)
+            cout << '+' << string(width, '-');
+        cout << "+\n";
+        for (int cellRow{0}; cellRow < 11; cellRow++) {
+            for (int col{1}; col < board->HORZNSZ - 1; col++) {
+                curPce = getPce(board, row, col);
+                lghtCel = (col + row - 1) % 2 != 0;
+                if (!curPce->empty) {
+                    switch (curPce->pieceID) {
+                        case PieceID::KING:
+                            drwKing(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        case PieceID::QUEEN:
+                            drwQuen(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        case PieceID::ROOK:
+                            drwRook(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        case PieceID::BISHOP:
+                            drwBshp(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        case PieceID::KNIGHT:
+                            drwKnit(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        case PieceID::PAWN:
+                            drwPawn(lghtCel, cellRow, curPce->pceClr);
+                            break;
+                        default:
+                            drwBlRw(lghtCel);
+                    }
+                } else
+                    drwBlRw(lghtCel);
+            }
+            cout << "|\n";
         }
-        cout << '\n';
     }
-    cout << "   +---+---+---+---+---+---+---+---+\n\n";
+    // Draw bottom of board
+    for (int col{1}; col < board->HORZNSZ - 1; col++)
+        cout << '+' << string(width, '-');
+    cout << "+\n";
 }
 
 void dealloc(Board *board) {
