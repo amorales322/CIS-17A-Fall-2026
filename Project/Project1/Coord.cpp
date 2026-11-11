@@ -8,6 +8,15 @@ Coord *newCord(const unsigned char row, const unsigned char col) {
     return tuple;
 }
 
+Coord *fmChsNt(const string &pos) {
+    return newCord(pos[1] - 48, toupper(pos[0]) - 64);
+}
+
+string toChsNt(const Coord *const pos) {
+    string chsNot{static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'};
+    return chsNot;
+}
+
 void incrmnt(Coord *const val, const Coord *const by) {
     val->row += by->row;
     val->col += by->col;

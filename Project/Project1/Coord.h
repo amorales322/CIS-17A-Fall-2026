@@ -1,6 +1,9 @@
 #ifndef COORD_H
 #define COORD_H
 
+#include <string>
+using namespace std;
+
 struct Coord {
     char row;
     char col;
@@ -8,6 +11,10 @@ struct Coord {
 
 
 Coord *newCord(unsigned char, unsigned char);
+
+Coord *fmChsNt(const string &);
+
+string toChsNt(const Coord *);
 
 void incrmnt(Coord *, const Coord *);
 void incrmnt(Coord *, char, char);

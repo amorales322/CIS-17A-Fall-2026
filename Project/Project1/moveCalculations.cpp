@@ -166,7 +166,7 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
 
 
     dealloc(path);
-    return pceLoc->utilSze > 0;
+    return !pceLoc->empty;
 }
 
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool iposeMde, Array *const data, const PlyrClr &player) {
@@ -178,7 +178,7 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool ipo
     pawnMov(board, true, iposeMde, tgtPos, data, player);
 
 
-    isSafe = data->utilSze == 0;
+    isSafe = data->empty;
     return isSafe;
 }
 
@@ -190,7 +190,7 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr 
     knitMov(board, true, false, tgtPos, posData, player);
     pawnMov(board, true, false, tgtPos, posData, player);
 
-    isSafe = posData->utilSze == 0;
+    isSafe = posData->empty;
     dealloc(posData);
     return isSafe;
 }
@@ -277,7 +277,7 @@ bool unObPth(const Board *const board, const Coord *const initPos, const Coord *
     Array *path = calcPth(board, initPos, tgtPos, true);
     bool uobsPth{false};
 
-    if (path->utilSze != 0)
+    if (!path->empty)
         uobsPth = isEqual(path->data[0], start) && isEqual(path->data[path->utilSze - 1], end);
 
     dealloc(path);

@@ -159,23 +159,27 @@ Coord *getInpt() {
     return getInpt();
 }
 
-// const strings was introduced in a recent C++ version (I think C++20), so I just left it as a reference parameter
-// The proper way to do it would be string_view, but I wanted to stick to things we only learned in class
-Coord *fmChsNt(string &pos) {
-    return newCord(pos[1] - 48, toupper(pos[0]) - 64);
-}
-
-const char *toChsNt(const Coord *const pos) {
-    const char chsNot[3]{static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'};
-    return chsNot;
-}
-
 Piece *getPce(const Board *const board, const Coord *const coord) {
     return board->board[coord->row][coord->col];
 }
 
 Piece *getPce(const Board *const board, const size_t row, const size_t col) {
     return board->board[row][col];
+}
+
+const char *getName(const Board *const board, const Coord *const coord, const bool captlze) {
+    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knight", "Pawn"};
+    static const char *PCENME_L[7] = {"N/A", "king", "queen", "rook", "bishop", "knight", "pawn"};
+    if (captlze)
+        return PCENME_U[static_cast<size_t>(board->board[coord->row][coord->col]->pieceID)];
+    return PCENME_L[static_cast<size_t>(board->board[coord->row][coord->col]->pieceID)];
+}
+
+const char *getName(const Board *const board, const size_t row, const size_t col, const bool captlze) {
+    Coord *tgt{newCord(row, col)};
+    const char *name{getName(board, tgt, captlze)};
+    dealloc(tgt);
+    return name;
 }
 
 bool isOOB(const Coord *const coord) {

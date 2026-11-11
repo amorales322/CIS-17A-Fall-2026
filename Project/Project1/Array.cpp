@@ -11,11 +11,9 @@ Array *newArry(const size_t size) {
 }
 
 void pntArry(const Array *const array) {
-    if (!array->empty) {
+    if (!array->empty)
         for (size_t i{0}; i < array->utilSze; i++)
-            cout << toChsNt(array->data[i]) << ' ';
-        cout << '\n';
-    }
+            cout << toChsNt(array->data[i]) << (i < array->utilSze - 1 ? " " : "");
 }
 
 void cpyArry(Array *const to, const Array *const from) {
