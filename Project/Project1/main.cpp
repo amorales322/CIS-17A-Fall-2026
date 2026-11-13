@@ -131,9 +131,9 @@ int main(int argc, char **argv) {
                 if (board->check == board->whoTurn) {
                     dealloc(vldMves);
                     if (board->check == PlyrClr::WHITE)
-                        vldMves = sfeMves(board, board->wKngPos);
+                        vldMves = sfeMves(board, board->wKngPos, whoChk);
                     else
-                        vldMves = sfeMves(board, board->bKngPos);
+                        vldMves = sfeMves(board, board->bKngPos, whoChk);
 
                     // If no safe spaces remain after this elimination process ends, the game ends
                     if (vldMves->empty)
@@ -152,19 +152,16 @@ int main(int argc, char **argv) {
                          */
                         if (whoChk->utilSze == 1) {
                             if (board->whoTurn == PlyrClr::WHITE)
-                                pceIntr(board, board->wKngPos, vldMves->data[0], canIPos, iPosePs, board->whoTurn);
+                                pceIntr(board, board->wKngPos, whoChk->data[0], canIPos, iPosePs, board->whoTurn);
                             else
-                                pceIntr(board, board->bKngPos, vldMves->data[0], canIPos, iPosePs, board->whoTurn);
+                                pceIntr(board, board->bKngPos, whoChk->data[0], canIPos, iPosePs, board->whoTurn);
                             if (!canIPos->empty)
                                 appDta(canMove, canIPos);
                         }
 
                         // Get Piece to Move
                         cout << (board->whoTurn == PlyrClr::WHITE ? board->white->name : board->black->name) <<
-                                ", enter which piece you would like to move (-1 to surrender, -2 to save & quit) (Can move: ";
-                        pntArry(canMove);
-                        cout << "): ";
-
+                                ", your king is in check! Enter which piece you would like to move (-1 to surrender, -2 to save & quit): ";
                         tgtPce = getInpt();
                         while (!isEqual(tgtPce, -1, -1) && !isEqual(tgtPce, -2, -2) && !vldMove(tgtPce, canMove)) {
                             cout << "Invalid selection, select a new piece to move: ";
@@ -175,11 +172,8 @@ int main(int argc, char **argv) {
                             /*
                              * Get where to move piece
                              */
-                            cout << "Where would you like to move your " << getName(board, tgtPce) << " to (Can move to: ";
-                            pntArry(vldMves);
-                            cout << "): ";
+                            cout << "Where would you like to move your " << getName(board, tgtPce) << " to: ";
                             whereTo = getInpt();
-
                             // If king is selected
                             if (search(canMove, tgtPce) == 0) {
                                 while (!vldMove(whereTo, vldMves)) {
@@ -1727,9 +1721,8 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr 
     return isSafe;
 }
 
-Array *sfeMves(const Board *board, const Coord *kingPos) {
+Array *sfeMves(const Board *const board, const Coord *const kingPos, Array *const whoChk) {
     Array *vldMves{newArry()};
-    Array *whoChk{newArry()};
 
     Piece *kingPce{getPce(board, kingPos)};
 
@@ -1747,9 +1740,14 @@ Array *sfeMves(const Board *board, const Coord *kingPos) {
         if (!sfeSpce(board, vldMves->data[0], kingPce->pceClr))
             pop(vldMves, 0);
     }
-
-    dealloc(whoChk);
     return vldMves;
+}
+
+Array *sfeMves(const Board *const board, const Coord *const kingPos) {
+    Array *whoChk{newArry()};
+    Array *sfePos{sfeMves(board, kingPos, whoChk)};
+    dealloc(whoChk);
+    return sfePos;
 }
 
 bool stlmte(const Board *board, const PlyrClr player) {

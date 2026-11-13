@@ -29,8 +29,11 @@ void kingMov(const Board *, bool, const Coord *, Array *, const PlyrClr & = Plyr
  * Returns: Array of all piece positions that can reach the initial location
  */
 void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
+
 void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
+
 void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
+
 void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
 // Target & Interpose modes not needed, castling only applies to the king
@@ -68,11 +71,14 @@ bool sfeSpce(const Board *, const Coord *, bool, Array *, const PlyrClr &);
 bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
 
 /*
- * Determines which spaces are safe for a king to move to
+ * Determines which spaces are safe for a king to move to and the location(s) of piece(s) that are putting the king in check
  *
  * Returns: Array of safe spaces a king can move to, or an empty array if none exist
  */
+Array *sfeMves(const Board *, const Coord *, Array *);
+
 Array *sfeMves(const Board *, const Coord *);
+
 
 /*
  * Determines if a stalemate has occurred.
