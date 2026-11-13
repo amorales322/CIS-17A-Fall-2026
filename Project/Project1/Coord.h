@@ -34,7 +34,7 @@ string toChsNt(const Coord *);
 void incrmnt(Coord *, const Coord *);
 void incrmnt(Coord *, char, char);
 
-void dealloc(const Coord *);
+void dealloc(Coord *);
 
 /*
  * Comparison Functions

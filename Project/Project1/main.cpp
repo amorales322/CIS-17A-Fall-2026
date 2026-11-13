@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
             board->deadPos = deadPos(board);
             if (!board->deadPos) {
                 if (board->check == board->whoTurn) {
+                    dealloc(vldMves);
                     if (board->check == PlyrClr::WHITE)
                         vldMves = sfeMves(board, board->wKngPos);
                     else
@@ -217,6 +218,7 @@ int main(int argc, char **argv) {
                                 switch (getPce(board, tgtPce)->pieceID) {
                                     case PieceID::KING:
                                         dealloc(vldMves);
+                                        vldMves = nullptr;
                                         vldMves = sfeMves(board, tgtPce);
                                         break;
                                     case PieceID::QUEEN:
@@ -373,6 +375,8 @@ Array *newArry(const size_t size) {
     array->size = size;
     array->utilSze = 0;
     array->data = new Coord *[size];
+    for (size_t i{0}; i < size; i++)
+        array->data[i] = nullptr;
     array->empty = true;
 
     return array;
@@ -414,17 +418,18 @@ void appDta(Array *const to, const Array *const from) {
 
 void pop(Array *const array, const int idx = -1) {
     if (!array->empty) {
-        if (idx < 0 || idx == array->utilSze - 1)
-            delete []array->data[--array->utilSze];
-        else if (idx < array->utilSze) {
-            Coord **newData = new Coord *[array->size];
-            for (size_t i{0}; i < idx; i++)
-                newData[i] = array->data[i];
-            for (size_t i{static_cast<size_t>(idx) + 1}; i < array->utilSze; i++)
-                newData[i - 1] = array->data[i];
-            delete []array->data;
-            array->data = newData;
+        if (idx < 0 || idx == array->utilSze - 1) {
+            dealloc(array->data[--array->utilSze]);
+            array->data[array->utilSze] = nullptr;
+        } else if (idx < array->utilSze) {
+            dealloc(array->data[idx]);
+            array->data[idx] = nullptr;
+            for (size_t i{static_cast<size_t>(idx)}; i < array->utilSze - 1; i++) {
+                array->data[i] = array->data[i + 1];
+            }
             array->utilSze--;
+            for (size_t i{array->utilSze}; i < array->size; i++)
+                array->data[i] = nullptr;
         }
         if (array->utilSze == 0)
             array->empty = true;
@@ -439,6 +444,7 @@ void resize(Array *array, const int newCap) {
             for (size_t i{0}; i < array->utilSze; i++)
                 newData[i] = array->data[i];
             delete []array->data;
+            array->data = nullptr;
             array->data = newData;
         } else if (newCap == 0) {
             clear(array);
@@ -448,19 +454,25 @@ void resize(Array *array, const int newCap) {
             for (size_t i{0}; i < newCap; i++)
                 newData[i] = array->data[i];
             // Deallocate all Coord structures past new size inside the old array
-            for (size_t i{static_cast<size_t>(newCap)}; i < array->size; i++)
+            for (size_t i{static_cast<size_t>(newCap)}; i < array->size; i++) {
                 dealloc(array->data[i]);
+                array->data[i] = nullptr;
+            }
             array->size = newCap;
 
             delete []array->data;
+            array->data = nullptr;
             array->data = newData;
         } else if (newCap > array->size) {
             // Resize to new specified size
-            array->size = newCap;
-            Coord **newData = new Coord *[array->size];
+            Coord **newData = new Coord *[newCap];
             for (size_t i{0}; i < array->utilSze; i++)
                 newData[i] = array->data[i];
+            for (size_t i{array->utilSze}; i < newCap; i++)
+                newData[i] = nullptr;
+            array->size = newCap;
             delete []array->data;
+            array->data = nullptr;
             array->data = newData;
         }
         if (array->utilSze == 0)
@@ -469,11 +481,11 @@ void resize(Array *array, const int newCap) {
 }
 
 void clear(Array *array) {
-    for (int i{0}; i < array->utilSze; i++)
+    for (int i{0}; i < array->size; i++) {
         dealloc(array->data[i]);
-    delete []array->data;
+        array->data[i] = nullptr;
+    }
     array->utilSze = 0;
-    array->data = new Coord *[array->size];
     array->empty = true;
 }
 
@@ -482,12 +494,18 @@ void shrink(Array *const array) {
 }
 
 void dealloc(Array *array) {
-    if (array->data != nullptr) {
-        for (size_t i{0}; i < array->utilSze; i++)
-            dealloc(array->data[i]);
-        delete []array->data;
+    if (array != nullptr) {
+        if (array->data != nullptr) {
+            for (size_t i{0}; i < array->size; i++) {
+                dealloc(array->data[i]);
+                array->data[i] = nullptr;
+            }
+            delete []array->data;
+            array->data = nullptr;
+        }
+        delete array;
+        array = nullptr;
     }
-    delete array;
 }
 
 int search(const Array *const array, const Coord *const target) {
@@ -1217,10 +1235,14 @@ void drawBrd(const Board *const board) {
 void dealloc(Board *board) {
     dealloc(board->board, board->VERTSZE, board->HORZNSZ);
 
-    delete board->wKngPos;
-    delete board->bKngPos;
+    dealloc(board->wKngPos);
+    board->wKngPos = nullptr;
+    dealloc(board->bKngPos);
+    board->bKngPos = nullptr;
     dealloc(board->white);
+    board->white = nullptr;
     dealloc(board->black);
+    board->black = nullptr;
 
     delete board;
     board = nullptr;
@@ -1232,6 +1254,7 @@ void dealloc(Piece ***pceArry, const size_t vertSze, const size_t horzSze) {
             for (size_t col{0}; col < horzSze; col++)
                 dealloc(pceArry[row][col]);
             delete []pceArry[row];
+            pceArry[row] = nullptr;
         }
         delete []pceArry;
         pceArry = nullptr;
@@ -1359,7 +1382,7 @@ Coord *copyCord(const Coord *const toCopy) {
     return newCord(toCopy->row, toCopy->col);
 }
 
-void dealloc(const Coord *coord) {
+void dealloc(Coord *coord) {
     if (coord != nullptr)
         delete coord;
     coord = nullptr;
@@ -1741,6 +1764,8 @@ bool stlmte(const Board *board, const PlyrClr player) {
             if (curPce->pceClr == player) {
                 switch (curPce->pieceID) {
                     case PieceID::KING:
+                        dealloc(vldMves);
+                        vldMves = nullptr;
                         vldMves = sfeMves(board, curCord);
                         break;
                     case PieceID::QUEEN:
@@ -1812,7 +1837,6 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             }
             if (incBnds && !isOOB(end))
                 appDta(path, end);
-
         }
         dealloc(incAmt);
         dealloc(curPos);
