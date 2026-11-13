@@ -1,11 +1,12 @@
+/*
+* File:   Player.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef PLAYER_H
 #define PLAYER_H
-
-#include <string>
-#include <iostream>
-#include <fstream>
-
-using namespace std;
 
 struct Player {
     unsigned short nWins;

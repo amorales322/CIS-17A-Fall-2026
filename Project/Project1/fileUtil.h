@@ -1,10 +1,12 @@
+/*
+* File:   fileUtil.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef FILEUTIL_H
 #define FILEUTIL_H
-
-#include <iostream>
-#include <fstream>
-#include <string>
-using namespace std;
 
 #include "PlyrClr.h"
 

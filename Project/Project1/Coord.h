@@ -1,10 +1,12 @@
+/*
+* File:   Coord.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef COORD_H
 #define COORD_H
-
-#include <string>
-#include <fstream>
-using namespace std;
-
 struct Coord {
     char row;
     char col;

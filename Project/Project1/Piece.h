@@ -1,15 +1,15 @@
+/*
+* File:   Piece.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef PIECE_H
 #define PIECE_H
 
-#include "Array.h"
 #include "PieceID.h"
 #include "PlyrClr.h"
-#include "ASCII.h"
-
-#include <iostream>
-#include <fstream>
-
-using namespace std;
 
 struct Piece {
     PieceID pieceID;
@@ -33,7 +33,6 @@ void dealloc(Piece *);
 /*
  * Piece Drawing Functions
  */
-
 void drwKing(bool, size_t, const PlyrClr &);
 void drwQuen(bool, size_t, const PlyrClr &);
 void drwRook(bool, size_t, const PlyrClr &);

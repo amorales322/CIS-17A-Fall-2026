@@ -23,8 +23,6 @@ void cpyArry(Array *, const Array *);
  * Element Modifiers
  * Note: Creates a copy of the elements, does not insert duplicate elements
  */
-
-
 void appDta(Array *, const Coord *);
 
 void appDta(Array *, const Array *);

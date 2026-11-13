@@ -1,14 +1,16 @@
+/*
+* File:   Board.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef BOARD_H
 #define BOARD_H
 
 #include "Piece.h"
 #include "Player.h"
 #include "PlyrClr.h"
-#include "fileUtil.h"
-
-#include <fstream>
-using namespace std;
-
 
 struct Board {
     const unsigned char VERTSZE{10};

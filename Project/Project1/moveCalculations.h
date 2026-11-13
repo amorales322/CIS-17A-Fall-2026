@@ -1,3 +1,10 @@
+/*
+* File:   moveCalculations.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef MOVECALCULATIONS_H
 #define MOVECALCULATIONS_H
 

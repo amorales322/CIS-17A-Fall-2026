@@ -1,13 +1,17 @@
+/*
+* File:   ASCII.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  Project 1 - Chess
+ */
+
 #ifndef ASCII_H
 #define ASCII_H
-
 #include "PlyrClr.h"
 
-#include <iostream>
-#include <string>
-#include <cstring>
-using namespace std;
-
+/*
+ * Utility Functions
+ */
 size_t clcLftW(size_t);
 
 size_t clcRgtW(size_t);
@@ -16,6 +20,10 @@ string getBlnk(size_t, bool);
 
 string getBlnk(size_t, char);
 
+
+/*
+ * Printing Functions
+ */
 void drwBlRw(bool);
 
 void drClmRw(const char *, bool);
@@ -50,7 +58,6 @@ void drawH(size_t);
 /*
  * Numbers
  */
-
 void drwLtrs();
 
 void draw1(size_t);
