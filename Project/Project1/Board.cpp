@@ -14,7 +14,9 @@ Board *newBord(fstream &gmeFile, fstream &plyr1, fstream &plyr2, bool frmFile) {
         read(gmeFile, board->check);
         read(gmeFile, board->chkmte);
         read(gmeFile, board->stlemte);
+        read(gmeFile, board->surndr);
         read(gmeFile, board->deadPos);
+        read(gmeFile, board->exitGme);
         board->board = new Piece **[board->VERTSZE];
         for (int row{0}; row < board->VERTSZE; row++) {
             board->board[row] = new Piece *[board->HORZNSZ];
@@ -31,17 +33,14 @@ Board *newBord(fstream &gmeFile, fstream &plyr1, fstream &plyr2, bool frmFile) {
         board->whoTurn = PlyrClr::WHITE;
         board->check = PlyrClr::NONE;
         board->chkmte = PlyrClr::NONE;
+        board->surndr = PlyrClr::NONE;
+        board->exitGme = PlyrClr::NONE;
         board->stlemte = false;
         board->deadPos = false;
         board->wKngPos = newCord(8, 5);
         board->bKngPos = newCord(1, 5);
     }
 
-    // board->board[1][5] = newPce(PlyrClr::BLACK, PieceID::KING);
-    // board->board[8][5] = newPce(PlyrClr::WHITE, PieceID::KING);
-
-    // board->board[1][1] = newPce(PlyrClr::BLACK, PieceID::ROOK);
-    // board->board[1][8] = newPce(PlyrClr::BLACK, PieceID::ROOK);
 
     return board;
 }
@@ -58,9 +57,9 @@ void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, Board *const board
     write(gmeFile, board->whoTurn);
     write(gmeFile, board->check);
     write(gmeFile, board->chkmte);
+    write(gmeFile, board->surndr);
     write(gmeFile, board->stlemte);
     write(gmeFile, board->deadPos);
-
 
     for (int row{0}; row < board->VERTSZE; row++)
         for (int col{0}; col < board->VERTSZE; col++)
@@ -84,6 +83,8 @@ void rstBrd(Board *const board) {
     board->whoTurn = PlyrClr::WHITE;
     board->check = PlyrClr::NONE;
     board->chkmte = PlyrClr::NONE;
+    board->surndr = PlyrClr::NONE;
+    board->exitGme = PlyrClr::NONE;
     board->stlemte = false;
     board->deadPos = false;
 }
@@ -167,6 +168,8 @@ void drawBrd(const Board *const board) {
     Piece *curPce;
     bool lghtCel;
 
+
+    cout << "\n\n" << board->black->name << "\n\n";
     for (int cellRow{3}; cellRow < 9; cellRow++) {
         for (int col{0}; col < board->HORZNSZ - 1; col++) {
             switch (col) {
@@ -275,7 +278,7 @@ void drawBrd(const Board *const board) {
     cout << getBlnk(24, false);
     for (int col{1}; col < board->HORZNSZ - 1; col++)
         cout << '+' << string(width, '-');
-    cout << "+\n";
+    cout << "+\n\n" << board->white->name << "\n\n";
 }
 
 void dealloc(Board *board) {
@@ -304,6 +307,10 @@ Coord *getInpt() {
     string input{};
     cin >> input;
 
+    if (input == "-1")
+        return newCord(-1, -1);
+    if (input == "-2")
+        return newCord(-2, -2);
     if (input.length() == 2 && toupper(input[0]) <= 'H' && toupper(input[0]) >= 'A' && input[1] <= '8' && input[1] >= '1')
         return fmChsNt(input);
 
@@ -322,26 +329,27 @@ bool getOpt() {
     return getOpt();
 }
 
-string getFPth() {
-    string input{};
-    cin >> input;
-    if (input.find(".bin") != string::npos)
-        return input;
-    cout << "Invalid file, enter new file: ";
-    return getFPth();
-}
-
-void opnFile(fstream &file, const string &filePth) {
-    file.open(filePth, ios::binary | ios::in | ios::out);
-    if (!file.is_open()) {
-        cout << "File does not exist. Creating new file.\n";
-        file.open(filePth, ios::binary | ios::in | ios::out | ios::trunc);
-    } else
-        file.seekg(0, ios::end);
-}
-
 Piece *getPce(const Board *const board, const Coord *const coord) {
     return board->board[coord->row][coord->col];
+}
+
+void mvePce(Board *const board, const Coord *const a, const Coord *const b) {
+    Piece *pceA{getPce(board, a)};
+    Piece *pceB{getPce(board, b)};
+    Piece *tmp{pceA};
+
+    if (!getPce(board, b)->empty) {
+        if (pceA->pceClr == PlyrClr::WHITE)
+            cout << board->white->name << " has captured " << board->black->name << "'s " << getName(board, b) << "!\n";
+        else
+            cout << board->black->name << " has captured " << board->white->name << "'s " << getName(board, b) << "!\n";
+
+        dealloc(pceB);
+        board->board[b->row][b->col] = newPce();
+        pceB = getPce(board, b);
+    }
+    board->board[a->row][a->col] = pceB;
+    board->board[b->row][b->col] = tmp;
 }
 
 Piece *getPce(const Board *const board, const size_t row, const size_t col) {
@@ -349,22 +357,19 @@ Piece *getPce(const Board *const board, const size_t row, const size_t col) {
 }
 
 const char *getName(const Board *const board, const Coord *const coord, const bool captlze) {
-    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knight", "Pawn"};
-    static const char *PCENME_L[7] = {"N/A", "king", "queen", "rook", "bishop", "knight", "pawn"};
-    if (captlze)
-        return PCENME_U[static_cast<size_t>(board->board[coord->row][coord->col]->pieceID)];
-    return PCENME_L[static_cast<size_t>(board->board[coord->row][coord->col]->pieceID)];
+    return getName(board, coord->row, coord->col, captlze);
 }
 
 const char *getName(const Board *const board, const size_t row, const size_t col, const bool captlze) {
-    Coord *tgt{newCord(row, col)};
-    const char *name{getName(board, tgt, captlze)};
-    dealloc(tgt);
-    return name;
+    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knight", "Pawn"};
+    static const char *PCENME_L[7] = {"N/A", "king", "queen", "rook", "bishop", "knight", "pawn"};
+    if (captlze)
+        return PCENME_U[static_cast<size_t>(board->board[row][col]->pieceID)];
+    return PCENME_L[static_cast<size_t>(board->board[row][col]->pieceID)];
 }
 
 bool isOOB(const Coord *const coord) {
-    return coord->row < 1 || coord->row > 8 || coord->col < 1 || coord->col > 8;
+    return isOOB(coord->row, coord->col);
 }
 
 bool isOOB(const size_t row, const size_t col) {

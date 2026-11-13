@@ -1,6 +1,6 @@
 #include "moveCalculations.h"
 
-void kingMov(const Board *const board, const Coord *const initPos, Array *const data) {
+void kingMov(const Board *const board, const bool tgtMode, const Coord *const initPos, Array *const data, const PlyrClr &player) {
     // Order: Top-Left (clockwise)
     static const Coord offsets[] = {Coord{-1, -1}, Coord{-1, 0}, Coord{-1, 1}, Coord{0, -1}, Coord{0, 1}, Coord{1, -1}, Coord{1, 0}, Coord{1, 1}};
     Piece *initPce{getPce(board, initPos)};
@@ -8,8 +8,20 @@ void kingMov(const Board *const board, const Coord *const initPos, Array *const 
     for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
         Coord *curPos{copyCord(initPos)};
         incrmnt(curPos, &offsets[i]);
-        if (!isOOB(curPos) && vldPcMv(board, initPce, curPos))
-            appDta(data, curPos);
+
+        if (!isOOB(curPos)) {
+            Piece *tgtPce{getPce(board, curPos)};
+            if (tgtMode) {
+                if (tgtChk(false, initPce, tgtPce, player)) {
+                    if (tgtPce->pieceID == PieceID::KING)
+                        appDta(data, curPos);
+                }
+            } else {
+                // Not in target mode: checking if the piece can move to the final position
+                if (vldPcMv(board, initPce, curPos))
+                    appDta(data, curPos);
+            }
+        }
         dealloc(curPos);
     }
 }
@@ -21,6 +33,11 @@ void lineMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
     for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
         Coord *curPos{walkPth(board, initPos, offsets[i].row, offsets[i].col)};
+        if (!tgtMode) {
+            Array *path{calcPth(board, initPos, curPos)};
+            appDta(data, path);
+            dealloc(path);
+        }
         if (!isOOB(curPos)) {
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
@@ -45,6 +62,11 @@ void diagMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
     for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
         Coord *curPos{walkPth(board, initPos, offsets[i].row, offsets[i].col)};
+        if (!tgtMode) {
+            Array *path{calcPth(board, initPos, curPos)};
+            appDta(data, path);
+            dealloc(path);
+        }
         if (!isOOB(curPos)) {
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
@@ -115,11 +137,25 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
         // Not in target mode: checking if the piece can move to the final position
         start = initPce->pceClr == PlyrClr::WHITE ? (initPce->fstMove ? 0 : 1) : 4;
         end = initPce->pceClr == PlyrClr::WHITE ? 4 : (initPce->fstMove ? 8 : 7);
+        size_t diagSta = initPce->pceClr == PlyrClr::WHITE ? 2 : 4;
+        size_t strStrt = initPce->pceClr == PlyrClr::WHITE ? start : 6;
+        size_t strEnd = initPce->pceClr == PlyrClr::WHITE ? 2 : end;
         for (size_t i{start}; i < end; i++) {
             curPos = copyCord(initPos);
             incrmnt(curPos, &offsets[i]);
-            if (vldPcMv(board, getPce(board, initPos), curPos))
-                appDta(data, curPos);
+            if (vldPcMv(board, getPce(board, initPos), curPos)) {
+                // If checking diagonals
+                if (i >= diagSta && i < diagSta + 2) {
+                    if (!getPce(board, curPos)->empty && getPce(board, curPos)->pceClr != initPce->pceClr)
+                        appDta(data, curPos);
+                } else if (i >= strStrt && i < strEnd) {
+                    // If checking straight line paths
+                    if (getPce(board, curPos)->empty)
+                        appDta(data, curPos);
+                } else
+                // Normal Checks
+                    appDta(data, curPos);
+            }
             dealloc(curPos);
         }
     }
@@ -136,7 +172,6 @@ void castle(const Board *const board, const Coord *const initPos, Array *const d
         size_t end = initPce->pceClr == PlyrClr::WHITE ? 4 : 8;
         for (size_t i{start}; i < end; i += 2) {
             Piece *offPce{getPce(board, &offsets[i])};
-            // Todo: Verify that sfeSpce received the correct player color parameter
             if (offPce->pieceID == PieceID::ROOK && offPce->fstMove && sfeSpce(board, &offsets[i + 1], initPce->pceClr) && unObPth(board, initPos, &offsets[i]))
                 appDta(data, &offsets[i + 1]);
         }
@@ -172,25 +207,19 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool iposeMde, Array *const data, const PlyrClr &player) {
     bool isSafe;
 
+    kingMov(board, true, tgtPos, data, player);
     lineMov(board, true, iposeMde, tgtPos, data, player);
     diagMov(board, true, iposeMde, tgtPos, data, player);
     knitMov(board, true, iposeMde, tgtPos, data, player);
     pawnMov(board, true, iposeMde, tgtPos, data, player);
-
 
     isSafe = data->empty;
     return isSafe;
 }
 
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr &player) {
-    Array *posData = newArry();
-    bool isSafe;
-    lineMov(board, true, false, tgtPos, posData, player);
-    diagMov(board, true, false, tgtPos, posData, player);
-    knitMov(board, true, false, tgtPos, posData, player);
-    pawnMov(board, true, false, tgtPos, posData, player);
-
-    isSafe = posData->empty;
+    Array *posData{newArry()};
+    bool isSafe{sfeSpce(board, tgtPos, false, posData, player)};
     dealloc(posData);
     return isSafe;
 }
@@ -202,51 +231,104 @@ Array *sfeMves(const Board *board, const Coord *kingPos) {
     Piece *kingPce{getPce(board, kingPos)};
 
     // Determines the locations of the pieces that are putting the king in check
-    sfeSpce(board, board->wKngPos, false, whoChk, kingPce->pceClr);
+    sfeSpce(board, kingPos, false, whoChk, kingPce->pceClr);
 
     // Determine which spaces the king can move to, not yet accounting for spaces where the king would still be in check
-    kingMov(board, board->wKngPos, vldMves);
+    kingMov(board, false, kingPos, vldMves);
 
     // Eliminate surrounding spaces the king cannot move to, accounting for ones where the king would still be in check
-    for (size_t i{vldMves->utilSze - 1}; i > 0; i--)
-        if (!sfeSpce(board, vldMves->data[i], kingPce->pceClr))
-            pop(vldMves, i);
-    if (!sfeSpce(board, vldMves->data[0], kingPce->pceClr))
-        pop(vldMves, 0);
+    if (!vldMves->empty) {
+        for (size_t i{vldMves->utilSze - 1}; i > 0; i--)
+            if (!sfeSpce(board, vldMves->data[i], kingPce->pceClr))
+                pop(vldMves, i);
+        if (!sfeSpce(board, vldMves->data[0], kingPce->pceClr))
+            pop(vldMves, 0);
+    }
 
+    dealloc(vldMves);
+    dealloc(whoChk);
     return vldMves;
+}
+
+bool stlmte(const Board *board, const PlyrClr player) {
+    Coord *curCord;
+    Array *vldMves;
+    for (size_t row{1}; row < board->VERTSZE - 1; row++)
+        for (size_t col{1}; col < board->HORZNSZ - 1; col++) {
+            curCord = newCord(row, col);
+            Piece *curPce{getPce(board, curCord)};
+            vldMves = newArry(10);
+            if (curPce->pceClr == player) {
+                switch (curPce->pieceID) {
+                    case PieceID::KING:
+                        vldMves = sfeMves(board, curCord);
+                        break;
+                    case PieceID::QUEEN:
+                        lineMov(board, false, false, curCord, vldMves);
+                        diagMov(board, false, false, curCord, vldMves);
+                        break;
+                    case PieceID::ROOK:
+                        lineMov(board, false, false, curCord, vldMves);
+                        break;
+                    case PieceID::BISHOP:
+                        diagMov(board, false, false, curCord, vldMves);
+                        break;
+                    case PieceID::KNIGHT:
+                        knitMov(board, false, false, curCord, vldMves);
+                        break;
+                    case PieceID::PAWN:
+                        pawnMov(board, false, false, curCord, vldMves);
+                        break;
+                }
+                if (!vldMves->empty)
+                    return false;
+            }
+            dealloc(curCord);
+            dealloc(vldMves);
+        }
+    return true;
 }
 
 Array *calcPth(const Board *const board, const Coord *const initPos, const Coord *const tgtPos, const bool incBnds) {
     Array *path = newArry();
 
     if (initPos != tgtPos) {
-        const Coord *start{lessEq(initPos, tgtPos) ? initPos : tgtPos};
-        const Coord *end{lessEq(initPos, tgtPos) ? tgtPos : initPos};
+        const Coord *start{nullptr};
+        const Coord *end{nullptr};
         Coord *incAmt{nullptr};
-        Piece *curPce;
+        Piece *curPce{nullptr};
+        Coord *curPos{nullptr};
 
-        if (abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col)) // Diagonal Path
-            incAmt = lessEq(start, end) ? newCord(1, 1) : newCord(1, -1);
-        else if (initPos->row == tgtPos->row) // Horizontal Path
+        if (abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col)) {
+            // Diagonal Path
+            start = initPos->row > tgtPos->row ? tgtPos : initPos;
+            end = initPos->row > tgtPos->row ? initPos : tgtPos;
+            incAmt = start->row < end->row && start->col > end->col ? newCord(1, -1) : newCord(1, 1);
+        } else if (initPos->row == tgtPos->row) {
+            // Horizontal Path
+            start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
+            end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
             incAmt = newCord(0, 1);
-        else if (initPos->col == tgtPos->col) // Vertical Path
+        } else if (initPos->col == tgtPos->col) {
+            // Vertical Path
             incAmt = newCord(1, 0);
+            start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
+            end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
+        }
         if (incAmt != nullptr) {
-            if (incBnds)
-                appDta(path, lessEq(initPos, tgtPos) ? initPos : tgtPos);
+            if (incBnds & !isOOB(start))
+                appDta(path, start);
 
             Coord *curPos{copyCord(start)};
             incrmnt(curPos, incAmt);
             curPce = getPce(board, curPos);
-            while (!isEqual(curPos, end) && curPce->empty) {
+            while (!isOOB(curPos) && !isEqual(curPos, end) && curPce->empty) {
                 appDta(path, curPos);
                 incrmnt(curPos, incAmt);
                 curPce = getPce(board, curPos);
             }
-            if (incBnds)
-                appDta(path, lessEq(initPos, tgtPos) ? tgtPos : initPos);
-
+            if (incBnds && !isOOB(end))
+                appDta(path, end);
             dealloc(incAmt);
             dealloc(curPos);
         }

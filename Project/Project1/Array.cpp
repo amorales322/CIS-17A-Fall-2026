@@ -14,6 +14,8 @@ void pntArry(const Array *const array) {
     if (!array->empty)
         for (size_t i{0}; i < array->utilSze; i++)
             cout << toChsNt(array->data[i]) << (i < array->utilSze - 1 ? " " : "");
+    else
+        cout << "None";
 }
 
 void cpyArry(Array *const to, const Array *const from) {
@@ -32,13 +34,15 @@ void appDta(Array *const array, const Coord *const coord) {
 
 // Creates a copy of the coord - Appends duplicates
 void appDta(Array *const to, const Array *const from) {
-    size_t fnlSize{to->utilSze + from->utilSze};
-    if (to->size < fnlSize)
-        resize(to, fnlSize);
-    for (unsigned int i{to->utilSze}; i < fnlSize; i++)
-        to->data[i] = copyCord(from->data[i - to->utilSze]);
-    to->size = fnlSize;
-    to->empty = false;
+    if (!from->empty) {
+        size_t fnlSize{to->utilSze + from->utilSze};
+        if (to->size < fnlSize)
+            resize(to, fnlSize);
+        for (unsigned int i{to->utilSze}; i < fnlSize; i++)
+            to->data[i] = copyCord(from->data[i - to->utilSze]);
+        to->utilSze = fnlSize;
+        to->empty = false;
+    }
 }
 
 void pop(Array *const array, const int idx = -1) {

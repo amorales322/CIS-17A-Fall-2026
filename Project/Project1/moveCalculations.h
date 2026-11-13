@@ -8,7 +8,7 @@
  * 1. Target mode for each piece type is covered with the other functions
  * 2. A piece cannot interpose between adjacent pieces
  */
-void kingMov(const Board *, const Coord *, Array *);
+void kingMov(const Board *, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
 /*
  * These Functions have three modes
@@ -66,6 +66,8 @@ bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
  * Returns: Array of safe spaces a king can move to, or an empty array if none exist
  */
 Array *sfeMves(const Board *, const Coord *);
+
+bool stlmte(const Board *, PlyrClr);
 
 /*
  * Calculates a straight line path between two points. Bounds default to exclusive.

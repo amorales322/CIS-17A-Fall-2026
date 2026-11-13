@@ -11,7 +11,7 @@ struct Coord {
 };
 
 
-Coord *newCord(unsigned char, unsigned char);
+Coord *newCord(char, char);
 
 Coord *newCord(fstream &);
 
@@ -35,15 +35,15 @@ void dealloc(const Coord *);
 
 bool lessThn(const Coord *, const Coord *);
 
-bool lessThn(const Coord *, unsigned char, unsigned char);
+bool lessThn(const Coord *, char, char);
 
 bool lessEq(const Coord *, const Coord *);
 
-bool lessEq(const Coord *, unsigned char, unsigned char);
+bool lessEq(const Coord *, char, char);
 
 bool isEqual(const Coord *, const Coord *);
 
-bool isEqual(const Coord *, unsigned char, unsigned char);
+bool isEqual(const Coord *, char, char);
 
 
 #endif

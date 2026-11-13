@@ -18,6 +18,8 @@ struct Board {
     PlyrClr whoTurn;
     PlyrClr check;
     PlyrClr chkmte;
+    PlyrClr surndr;
+    PlyrClr exitGme;
 
     bool stlemte;
     bool deadPos;
@@ -51,13 +53,11 @@ Coord *getInpt();
 
 bool getOpt();
 
-string getFPth();
-
-void opnFile(fstream &, const string &);
-
 Piece *getPce(const Board *, const Coord *);
 
 Piece *getPce(const Board *, size_t, size_t);
+
+void mvePce(Board *, const Coord *, const Coord *);
 
 const char *getName(const Board *, const Coord *, bool = false);
 

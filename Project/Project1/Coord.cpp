@@ -1,6 +1,6 @@
 #include "Coord.h"
 
-Coord *newCord(const unsigned char row, const unsigned char col) {
+Coord *newCord(const char row, const char col) {
     Coord *tuple = new Coord;
     tuple->row = row;
     tuple->col = col;
@@ -28,8 +28,7 @@ string toChsNt(const Coord *const pos) {
 }
 
 void incrmnt(Coord *const val, const Coord *const by) {
-    val->row += by->row;
-    val->col += by->col;
+    incrmnt(val, by->row, by->col);
 }
 
 void incrmnt(Coord *const val, const char row, const char col) {
@@ -47,25 +46,25 @@ void dealloc(const Coord *coord) {
 }
 
 bool lessThn(const Coord *const a, const Coord *const b) {
-    return a->row < b->row && a->col < b->col;
+    return lessThn(a, b->row, b->col);
 }
 
-bool lessThn(const Coord *const a, const unsigned char bRow, const unsigned char bCol) {
+bool lessThn(const Coord *const a, const char bRow, const char bCol) {
     return a->row < bRow && a->col < bCol;
 }
 
 bool lessEq(const Coord *const a, const Coord *const b) {
-    return a->row <= b->row && a->col <= b->col;
+    return lessEq(a, b->row, b->col);
 }
 
-bool lessEq(const Coord *const a, const unsigned char bRow, const unsigned char bCol) {
+bool lessEq(const Coord *const a, const char bRow, const char bCol) {
     return a->row <= bRow && a->col <= bCol;
 }
 
 bool isEqual(const Coord *const a, const Coord *b) {
-    return a->row == b->row && a->col == b->col;
+    return isEqual(a, b->row, b->col);
 }
 
-bool isEqual(const Coord *const a, const unsigned char bRow, const unsigned char bCol) {
+bool isEqual(const Coord *const a, const char bRow, const char bCol) {
     return a->row == bRow && a->col == bCol;
 }
