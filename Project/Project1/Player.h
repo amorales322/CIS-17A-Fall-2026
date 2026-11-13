@@ -13,9 +13,12 @@ struct Player {
     string name;
 };
 
-Player *newPlyr(fstream &, bool);
+Player *newPlyr(fstream &, bool, size_t);
 
 void toFile(fstream &, Player *);
+
+// Prints player statistics
+void ptPlrSt(const Player *, const Player *);
 
 void dealloc(Player *);
 

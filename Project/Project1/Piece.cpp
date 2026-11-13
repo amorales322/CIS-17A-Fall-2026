@@ -7,14 +7,12 @@ Piece *newPce(const PlyrClr pceClr, const PieceID pieceID) {
         piece->pceClr = PlyrClr::NONE;
         piece->pieceID = PieceID::EMPTY;
         piece->fstMove = false;
-        piece->enPasnt = false;
         piece->inCheck = false;
     } else {
         piece->empty = false;
         piece->pceClr = pceClr;
         piece->pieceID = pieceID;
         piece->fstMove = true;
-        piece->enPasnt = false;
         piece->inCheck = false;
     }
 
@@ -46,7 +44,6 @@ void pmtePce(Piece *const piece) {
         cin >> usrChce;
     }
 
-    piece->enPasnt = false;
     piece->fstMove = false;
     if (usrChce == "Queen")
         piece->pieceID = PieceID::QUEEN;

@@ -11,7 +11,7 @@
 using namespace std;
 
 // User Libraries
-// Contains function prototypes - will be removed and included here for my final submission
+// Contains Function Prototypes
 #include "Array.h"
 #include "Coord.h"
 #include "moveCalculations.h"
@@ -53,40 +53,51 @@ int main(int argc, char **argv) {
     /*
      * Loading Data
      */
-    cout << "Would you like to load data from a save file?: ";
+    cout << "Would you like to load a game from a save file?: ";
     inpt = getOpt();
+    cin.ignore();
     if (inpt) {
         // Game Save
         cout << "Enter the filename for the game save you would like to load: ";
         flePth1 = getFPth();
         opnFile(gameDta, flePth1);
+    } else {
+        cout << "Enter the filename for the game save you would like to save to: ";
+        flePth1 = getFPth();
+        opnFile(gameDta, flePth1, true);
+    }
+    Board *board{newBord(gameDta, inpt)};
 
+    cout << "Would you like to load player save data for player 1 from a file?: ";
+    inpt = getOpt();
+    cin.ignore();
+    if (inpt) {
         // Player 1
         cout << "Enter the filename for player 1's data that you would like to load: ";
         flePth2 = getFPth(flePth1);
         opnFile(plyr1, flePth2);
+    } else {
+        cout << "Enter the filename for player 1's data that you would like to save to: ";
+        flePth2 = getFPth(flePth1);
+        opnFile(plyr1, flePth2, true);
+    }
+    board->white = newPlyr(plyr1, inpt, 1);
 
+    cout << "Would you like to load player save data for player 2 from a file?: ";
+    inpt = getOpt();
+    cin.ignore();
+    if (inpt) {
         // Player 2
         cout << "Enter the filename for player 2's data that you would like to load: ";
         flePth3 = getFPth(flePth1, flePth2);
         opnFile(plyr2, flePth3);
     } else {
-        cout << "Enter the filename for the game save you would like to save to: ";
-        flePth1 = getFPth();
-        opnFile(gameDta, flePth1, true);
-
-        cout << "Enter the filename for player 1's data that you would like to save to: ";
-        flePth2 = getFPth(flePth1);
-        opnFile(plyr1, flePth2, true);
-
         // Player 2
         cout << "Enter the filename for player 2's data that you would like to save to: ";
         flePth3 = getFPth(flePth1, flePth2);
         opnFile(plyr2, flePth3, true);
     }
-
-    // Initialize Board & Player
-    Board *board{newBord(gameDta, plyr1, plyr2, inpt)};
+    board->black = newPlyr(plyr2, inpt, 2);
 
 
     /*
@@ -105,6 +116,8 @@ int main(int argc, char **argv) {
     Array *iPosePs{newArry()};
 
     // Map/Process the Inputs -> Outputs
+    if (inpt)
+        ptPlrSt(board->white, board->black);
     do {
         /*
          * Main Game Loop
@@ -115,7 +128,6 @@ int main(int argc, char **argv) {
             if (!board->deadPos) {
                 // if (board->whoTurn == PlyrClr::WHITE) {
                 if (board->check == board->whoTurn) {
-                    // Do not generalize - Conditional Based on who's turn it is
                     if (board->check == PlyrClr::WHITE)
                         vldMves = sfeMves(board, board->wKngPos);
                     else
@@ -124,12 +136,10 @@ int main(int argc, char **argv) {
                     // If no safe spaces remain after this elimination process ends, the game ends
                     if (vldMves->empty)
                         board->chkmte = board->whoTurn;
+                    else if (board->whoTurn == PlyrClr::WHITE)
+                        appDta(canMove, board->wKngPos);
                     else
-                        // Do not generalize - Conditional Based on who's turn it is
-                        if (board->whoTurn == PlyrClr::WHITE)
-                            appDta(canMove, board->wKngPos);
-                        else
-                            appDta(canMove, board->bKngPos);
+                        appDta(canMove, board->bKngPos);
 
                     // If the king is just in check and not in checkmate
                     if (board->chkmte == PlyrClr::NONE) {
@@ -137,7 +147,6 @@ int main(int argc, char **argv) {
                         // 1. If the king is in check by one piece, then a piece can potentially interpose between the king and the enemy piece, and we calculate this
                         // 2. If the king is in check by multiple pieces, then no piece cannot interpose between the multiple pieces and the king, and we just skip to the player input
                         if (whoChk->utilSze == 1) {
-                            // Do not generalize - Conditional Based on who's turn it is
                             if (board->whoTurn == PlyrClr::WHITE)
                                 pceIntr(board, board->wKngPos, vldMves->data[0], canIPos, iPosePs, board->whoTurn);
                             else
@@ -147,7 +156,6 @@ int main(int argc, char **argv) {
                         }
 
                         // Get Piece to Move
-                        // Do not generalize - Conditional Based on who's turn it is
                         cout << (board->whoTurn == PlyrClr::WHITE ? board->white->name : board->black->name) <<
                                 ", enter which piece you would like to move (-1 to surrender, -2 to save & quit) (Can move: ";
                         pntArry(canMove);
@@ -163,7 +171,9 @@ int main(int argc, char **argv) {
                             /*
                              * Get where to move piece
                              */
-                            cout << "Where would you like to move your " << getName(board, tgtPce) << " to: ";
+                            cout << "Where would you like to move your " << getName(board, tgtPce) << " to (Can move to: ";
+                            pntArry(vldMves);
+                            cout << "): ";
                             whereTo = getInpt();
 
                             // If king is selected
@@ -189,12 +199,7 @@ int main(int argc, char **argv) {
                         }
                     }
                 } else {
-                    /*
-                     * REGULAR TURN
-                     */
-                    // Do not generalize - Conditional Based on who's turn it is
                     board->stlemte = stlmte(board, board->whoTurn);
-
                     if (!board->stlemte) {
                         cout << (board->whoTurn == PlyrClr::WHITE ? board->white->name : board->black->name) <<
                                 ", enter which piece you would like to move (-1 to surrender, -2 to save & quit): ";
@@ -255,7 +260,6 @@ int main(int argc, char **argv) {
                 if (board->chkmte == PlyrClr::NONE && !board->stlemte && board->surndr == PlyrClr::NONE && board->exitGme == PlyrClr::NONE) {
                     getPce(board, tgtPce)->fstMove = false;
                     if (getPce(board, tgtPce)->pieceID == PieceID::KING) {
-                        // Do not generalize - Conditional Based on who's turn it is
                         if (board->whoTurn == PlyrClr::WHITE) {
                             board->wKngPos->row = whereTo->row;
                             board->wKngPos->col = whereTo->col;
@@ -267,7 +271,7 @@ int main(int argc, char **argv) {
                     if (getPce(board, tgtPce)->pieceID == PieceID::PAWN && (whereTo->row == 1 || whereTo->row == 8))
                         pmtePce(getPce(board, tgtPce));
                     mvePce(board, tgtPce, whereTo);
-                    // Do not generalize - Conditional Based on who's turn it is
+
                     if (board->whoTurn == PlyrClr::WHITE) {
                         if (!sfeSpce(board, board->bKngPos, PlyrClr::BLACK))
                             board->check = PlyrClr::BLACK;
@@ -279,7 +283,6 @@ int main(int argc, char **argv) {
                         else
                             board->check = PlyrClr::NONE;
                     }
-                    // Do not generalize - Conditional Based on who's turn it is
                     board->whoTurn = board->whoTurn == PlyrClr::WHITE ? PlyrClr::BLACK : PlyrClr::WHITE;
                 }
             }
@@ -338,6 +341,7 @@ int main(int argc, char **argv) {
     } while (inpt);
 
     // Display Inputs/Outputs
+    ptPlrSt(board->white, board->black);
 
     // Clean up memory and files
     cout << "Saving game...\n";

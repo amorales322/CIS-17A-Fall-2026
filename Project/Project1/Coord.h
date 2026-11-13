@@ -10,22 +10,27 @@ struct Coord {
     char col;
 };
 
-
+/*
+ * Allocators
+ */
 Coord *newCord(char, char);
 
 Coord *newCord(fstream &);
 
+Coord *copyCord(const Coord *);
+
+// File Writer
 void toFile(fstream &, Coord *);
 
+// Converts from chess notation to Coord struct
 Coord *fmChsNt(const string &);
 
+// Converts from Coord struct to chess notation
 string toChsNt(const Coord *);
 
+// Increments a coordinate by some value
 void incrmnt(Coord *, const Coord *);
-
 void incrmnt(Coord *, char, char);
-
-Coord *copyCord(const Coord *);
 
 void dealloc(const Coord *);
 

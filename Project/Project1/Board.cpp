@@ -1,22 +1,24 @@
 #include "Board.h"
 
-Board *newBord(fstream &gmeFile, fstream &plyr1, fstream &plyr2, bool frmFile) {
+Board *newBord(fstream &gmeFile, bool frmFile) {
     gmeFile.seekg(0, ios::beg);
     Board *board = new Board;
-    cin.ignore();
-    board->white = newPlyr(plyr1, frmFile);
-    board->black = newPlyr(plyr2, frmFile);
+
+    board->whoTurn = PlyrClr::WHITE;
+    board->check = PlyrClr::NONE;
+    board->chkmte = PlyrClr::NONE;
+    board->surndr = PlyrClr::NONE;
+    board->exitGme = PlyrClr::NONE;
+    board->stlemte = false;
+    board->deadPos = false;
 
     if (frmFile) {
-        read(gmeFile, board->wFstMve);
-        read(gmeFile, board->bFstMve);
         read(gmeFile, board->whoTurn);
         read(gmeFile, board->check);
         read(gmeFile, board->chkmte);
-        read(gmeFile, board->stlemte);
         read(gmeFile, board->surndr);
+        read(gmeFile, board->stlemte);
         read(gmeFile, board->deadPos);
-        read(gmeFile, board->exitGme);
         board->board = new Piece **[board->VERTSZE];
         for (int row{0}; row < board->VERTSZE; row++) {
             board->board[row] = new Piece *[board->HORZNSZ];
@@ -28,15 +30,6 @@ Board *newBord(fstream &gmeFile, fstream &plyr1, fstream &plyr2, bool frmFile) {
         board->bKngPos = newCord(gmeFile);
     } else {
         alocPce(board);
-        board->wFstMve = true;
-        board->bFstMve = true;
-        board->whoTurn = PlyrClr::WHITE;
-        board->check = PlyrClr::NONE;
-        board->chkmte = PlyrClr::NONE;
-        board->surndr = PlyrClr::NONE;
-        board->exitGme = PlyrClr::NONE;
-        board->stlemte = false;
-        board->deadPos = false;
         board->wKngPos = newCord(8, 5);
         board->bKngPos = newCord(1, 5);
     }
@@ -52,8 +45,6 @@ void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, Board *const board
 
     // Save Game Data
     gmeFile.seekp(0, ios::beg);
-    write(gmeFile, board->wFstMve);
-    write(gmeFile, board->bFstMve);
     write(gmeFile, board->whoTurn);
     write(gmeFile, board->check);
     write(gmeFile, board->chkmte);
@@ -78,8 +69,6 @@ void rstBrd(Board *const board) {
     board->wKngPos = newCord(8, 5);
     board->bKngPos = newCord(1, 5);
 
-    board->wFstMve = true;
-    board->bFstMve = true;
     board->whoTurn = PlyrClr::WHITE;
     board->check = PlyrClr::NONE;
     board->chkmte = PlyrClr::NONE;
@@ -156,17 +145,15 @@ void alocPce(Board *const board) {
 }
 
 bool deadPos(const Board *const board) {
-    // Condition 1: Checks if only kings remain
+    // Condition 1: Checks if only kings, bishops and knights remain
     for (int row{1}; row < board->VERTSZE - 1; row++) {
-        for (int col{1}; col < board->HORZNSZ - 1; col++)
-            if (getPce(board, row, col)->pieceID != PieceID::KING)
+        for (int col{1}; col < board->HORZNSZ - 1; col++) {
+            Piece *curPce{getPce(board, row, col)};
+            if (curPce->pieceID != PieceID::KING && curPce->pieceID != PieceID::BISHOP && curPce->pieceID != PieceID::KNIGHT)
                 return false;
+        }
     }
 
-    // Todo: King + Bishop vs King
-    // Todo: King + Knight vs King
-    // Todo: King + Bishop vs King + Bishop
-    // Todo: King + Knight vs King + Knight
     return true;
 }
 

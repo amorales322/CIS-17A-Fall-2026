@@ -13,8 +13,6 @@ using namespace std;
 struct Board {
     const unsigned char VERTSZE{10};
     const unsigned char HORZNSZ{10};
-    bool wFstMve;
-    bool bFstMve;
     PlyrClr whoTurn;
     PlyrClr check;
     PlyrClr chkmte;
@@ -33,40 +31,61 @@ struct Board {
     Coord *bKngPos;
 };
 
-Board *newBord(fstream &, fstream &, fstream &, bool);
-
-void toFile(fstream &, fstream &, fstream &, Board *);
+/*
+ * Allocators
+ */
+Board *newBord(fstream &, bool);
 
 void rstBrd(Board *);
 
 void alocPce(Board *);
 
-bool deadPos(const Board *);
+// File Writer
+void toFile(fstream &, fstream &, fstream &, Board *);
 
+
+/*
+ * Printing
+ */
 void drawBrd(const Board *);
 
+void clrScrn();
+
+/*
+ * Move validation functions
+ */
+bool isOOB(const Coord *);
+bool isOOB(size_t, size_t);
+
+/*
+ * Deallocators
+ */
 void dealloc(Board *);
 
 void dealloc(Piece ***, size_t, size_t);
 
+/*
+ * Input Functions
+ */
 Coord *getInpt();
 
 bool getOpt();
 
+
+/*
+ * Utility Functions
+ */
 Piece *getPce(const Board *, const Coord *);
 
 Piece *getPce(const Board *, size_t, size_t);
 
 void mvePce(Board *, const Coord *, const Coord *);
 
+// Checks the board for a dead position, which means that it is impossible for a check, checkmate, or stalemate to occur
+bool deadPos(const Board *);
+
+// Returns the name of a piece
 const char *getName(const Board *, const Coord *, bool = false);
-
 const char *getName(const Board *, size_t, size_t, bool = false);
-
-bool isOOB(const Coord *);
-
-bool isOOB(size_t, size_t);
-
-void clrScrn();
 
 #endif

@@ -2,6 +2,9 @@
 #define MOVECALCULATIONS_H
 
 #include "Board.h"
+/*
+ * Move Calculation Functions
+ */
 
 /*
  * King move does not need target or interpose modes because:
@@ -19,11 +22,8 @@ void kingMov(const Board *, bool, const Coord *, Array *, const PlyrClr & = Plyr
  * Returns: Array of all piece positions that can reach the initial location
  */
 void lineMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
-
 void diagMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
-
 void knitMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
-
 void pawnMov(const Board *, bool, bool, const Coord *, Array *, const PlyrClr & = PlyrClr::NONE);
 
 // Target & Interpose modes not needed, castling only applies to the king
@@ -67,13 +67,18 @@ bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
  */
 Array *sfeMves(const Board *, const Coord *);
 
+/*
+ * Determines if a stalemate has occurred.
+ *
+ * Returns: If a stalemate has occurred
+ */
 bool stlmte(const Board *, PlyrClr);
 
 /*
  * Calculates a straight line path between two points. Bounds default to exclusive.
  *
  * Returns: Empty array if there is no straight line path between the two points, or an array of all points along the path.
- *
+
  */
 Array *calcPth(const Board *, const Coord *, const Coord *, bool = false);
 

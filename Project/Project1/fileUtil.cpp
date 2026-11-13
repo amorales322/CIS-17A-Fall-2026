@@ -1,13 +1,13 @@
 #include "fileUtil.h"
 
-#include <bitset>
-
 string getFPth(const string &comp1, const string &comp2) {
     string input{};
     cin >> input;
     // Make sure its just a filename, not a filepath
-    if (input.find('.') == string::npos && input != comp1 && input != comp2)
+    if (input.find('.') == string::npos && input != comp1 && input != comp2) {
+        cin.ignore();
         return input;
+    }
     cout << "Invalid file, enter new filename: ";
     return getFPth(comp1, comp2);
 }

@@ -16,7 +16,6 @@ struct Piece {
     bool empty;
     PlyrClr pceClr;
     bool fstMove;
-    bool enPasnt; // For pawns if they can be captured via 'en passant'
     bool inCheck;
 };
 
