@@ -245,7 +245,6 @@ Array *sfeMves(const Board *board, const Coord *kingPos) {
             pop(vldMves, 0);
     }
 
-    dealloc(vldMves);
     dealloc(whoChk);
     return vldMves;
 }
@@ -253,10 +252,11 @@ Array *sfeMves(const Board *board, const Coord *kingPos) {
 bool stlmte(const Board *board, const PlyrClr player) {
     Coord *curCord;
     Array *vldMves;
+    Piece *curPce;
     for (size_t row{1}; row < board->VERTSZE - 1; row++)
         for (size_t col{1}; col < board->HORZNSZ - 1; col++) {
             curCord = newCord(row, col);
-            Piece *curPce{getPce(board, curCord)};
+            curPce = getPce(board, curCord);
             vldMves = newArry(10);
             if (curPce->pceClr == player) {
                 switch (curPce->pieceID) {
@@ -280,8 +280,11 @@ bool stlmte(const Board *board, const PlyrClr player) {
                         pawnMov(board, false, false, curCord, vldMves);
                         break;
                 }
-                if (!vldMves->empty)
+                if (!vldMves->empty) {
+                    dealloc(curCord);
+                    dealloc(vldMves);
                     return false;
+                }
             }
             dealloc(curCord);
             dealloc(vldMves);
@@ -319,7 +322,7 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             if (incBnds & !isOOB(start))
                 appDta(path, start);
 
-            Coord *curPos{copyCord(start)};
+            curPos = copyCord(start);
             incrmnt(curPos, incAmt);
             curPce = getPce(board, curPos);
             while (!isOOB(curPos) && !isEqual(curPos, end) && curPce->empty) {
@@ -329,9 +332,10 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             }
             if (incBnds && !isOOB(end))
                 appDta(path, end);
-            dealloc(incAmt);
-            dealloc(curPos);
+
         }
+        dealloc(incAmt);
+        dealloc(curPos);
     }
     return path;
 }

@@ -18,8 +18,6 @@ struct Piece {
     bool fstMove;
     bool enPasnt; // For pawns if they can be captured via 'en passant'
     bool inCheck;
-    // Array *vldMove; // Valid moves. For the king, this is any safe position it can move to.
-    // Array *capPth; // Paths capture pieces has to king
 };
 
 Piece *newPce(PlyrClr = PlyrClr::NONE, PieceID = PieceID::EMPTY);
@@ -27,8 +25,6 @@ Piece *newPce(PlyrClr = PlyrClr::NONE, PieceID = PieceID::EMPTY);
 Piece *newPce(fstream &);
 
 void toFile(fstream &file, Piece *);
-
-void mvePce(const Piece *, const Piece *);
 
 void pmtePce(Piece *);
 

@@ -43,6 +43,7 @@ Coord *copyCord(const Coord *const toCopy) {
 void dealloc(const Coord *coord) {
     if (coord != nullptr)
         delete coord;
+    coord = nullptr;
 }
 
 bool lessThn(const Coord *const a, const Coord *const b) {

@@ -31,12 +31,6 @@ void toFile(fstream &gmeFile, Piece *piece) {
     gmeFile.write(reinterpret_cast<char *>(piece), sizeof(Piece));
 }
 
-void mvePce(const Piece *a, const Piece *b) {
-    const Piece *tmp{a};
-    a = b;
-    b = tmp;
-}
-
 void pmtePce(Piece *const piece) {
     string usrChce;
     cout << "Your pawn is able to promote! Which piece would you like to promote it with: ";
@@ -65,11 +59,9 @@ void pmtePce(Piece *const piece) {
 }
 
 void dealloc(Piece *piece) {
-    // if (piece->vldMove != nullptr)
-    //     dealloc(piece->vldMove);
-    // if (piece->capPth != nullptr)
-    //     dealloc(piece->capPth);
-    delete piece;
+    if (piece != nullptr)
+        delete piece;
+    piece = nullptr;
 }
 
 void drwKing(const bool light, const size_t row, const PlyrClr &player) {

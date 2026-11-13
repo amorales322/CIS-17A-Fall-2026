@@ -27,7 +27,6 @@ void cpyArry(Array *, const Array *);
 
 void appDta(Array *, const Coord *);
 
-// Todo: Fix to not insert duplicates
 void appDta(Array *, const Array *);
 
 void pop(Array *, int);

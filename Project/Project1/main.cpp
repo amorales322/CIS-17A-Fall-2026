@@ -279,17 +279,20 @@ int main(int argc, char **argv) {
                         else
                             board->check = PlyrClr::NONE;
                     }
-
-                    clrScrn();
-                    clear(canMove);
-                    clear(vldMves);
-                    clear(whoChk);
-                    clear(canIPos);
-                    clear(iPosePs);
                     // Do not generalize - Conditional Based on who's turn it is
                     board->whoTurn = board->whoTurn == PlyrClr::WHITE ? PlyrClr::BLACK : PlyrClr::WHITE;
                 }
             }
+            clrScrn();
+            clear(canMove);
+            clear(vldMves);
+            clear(whoChk);
+            clear(canIPos);
+            clear(iPosePs);
+            dealloc(tgtPce);
+            dealloc(whereTo);
+            tgtPce = nullptr;
+            whereTo = nullptr;
         } while (board->chkmte == PlyrClr::NONE && !board->stlemte && !board->deadPos && board->surndr == PlyrClr::NONE && board->exitGme == PlyrClr::NONE);
 
         /*
@@ -340,9 +343,6 @@ int main(int argc, char **argv) {
     cout << "Saving game...\n";
     toFile(gameDta, plyr1, plyr2, board);
 
-
-    dealloc(tgtPce);
-    dealloc(whereTo);
     dealloc(vldMves);
     dealloc(canMove);
     dealloc(whoChk);

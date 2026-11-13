@@ -96,7 +96,7 @@ void alocPce(Board *const board) {
     for (int row{0}; row < board->VERTSZE; row++) {
         board->board[row] = new Piece *[board->HORZNSZ];
         for (int col{0}; col < board->HORZNSZ; col++)
-            board->board[row][col] = newPce();
+            board->board[row][col] = nullptr;
     }
 
     /*
@@ -146,6 +146,13 @@ void alocPce(Board *const board) {
 
     board->board[8][2] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
     board->board[8][7] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
+
+    // Allocate remaining if empty
+    for (int row{0}; row < board->VERTSZE; row++) {
+        for (int col{0}; col < board->HORZNSZ; col++)
+            if (board->board[row][col] == nullptr)
+                board->board[row][col] = newPce();
+    }
 }
 
 bool deadPos(const Board *const board) {
@@ -294,13 +301,15 @@ void dealloc(Board *board) {
 }
 
 void dealloc(Piece ***pceArry, const size_t vertSze, const size_t horzSze) {
-    for (size_t row{0}; row < vertSze; row++) {
-        for (size_t col{0}; col < horzSze; col++)
-            dealloc(pceArry[row][col]);
-        delete []pceArry[row];
+    if (pceArry != nullptr) {
+        for (size_t row{0}; row < vertSze; row++) {
+            for (size_t col{0}; col < horzSze; col++)
+                dealloc(pceArry[row][col]);
+            delete []pceArry[row];
+        }
+        delete []pceArry;
+        pceArry = nullptr;
     }
-    delete []pceArry;
-    pceArry = nullptr;
 }
 
 Coord *getInpt() {
@@ -344,7 +353,7 @@ void mvePce(Board *const board, const Coord *const a, const Coord *const b) {
         else
             cout << board->black->name << " has captured " << board->white->name << "'s " << getName(board, b) << "!\n";
 
-        dealloc(pceB);
+        dealloc(board->board[b->row][b->col]);
         board->board[b->row][b->col] = newPce();
         pceB = getPce(board, b);
     }
@@ -361,7 +370,7 @@ const char *getName(const Board *const board, const Coord *const coord, const bo
 }
 
 const char *getName(const Board *const board, const size_t row, const size_t col, const bool captlze) {
-    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knight", "Pawn"};
+    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knighxt", "Pawn"};
     static const char *PCENME_L[7] = {"N/A", "king", "queen", "rook", "bishop", "knight", "pawn"};
     if (captlze)
         return PCENME_U[static_cast<size_t>(board->board[row][col]->pieceID)];

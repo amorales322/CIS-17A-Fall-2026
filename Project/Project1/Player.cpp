@@ -37,5 +37,7 @@ void toFile(fstream &file, Player *player) {
 }
 
 void dealloc(Player *player) {
-    delete player;
+    if (player != nullptr)
+        delete player;
+    player = nullptr;
 }
