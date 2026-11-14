@@ -1619,17 +1619,37 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
 
     // tgtMode does not need to account for forward (one or two space) because pawns cannot capture forward and cannot move forward to a space if there is a piece occupying that space
+    // interpose mode does not need to account for diagonals because pawns cannot move diagonally if there is no space to capture
     if (tgtMode) {
-        start = player == PlyrClr::WHITE ? 2 : 4;
-        end = player == PlyrClr::WHITE ? 4 : 6;
+        if (intrpse) {
+            start = player == PlyrClr::WHITE ? 6 : 0;
+            end = player == PlyrClr::WHITE ? 8 : 2;
+        } else {
+            start = player == PlyrClr::WHITE ? 2 : 4;
+            end = player == PlyrClr::WHITE ? 4 : 6;
+        }
+
 
         for (size_t i{start}; i < end; i++) {
             curPos = copyCord(initPos);
             incrmnt(curPos, &offsets[i]);
-            Piece *tgtPce{getPce(board, curPos)};
-            if (!isOOB(curPos) && tgtChk(intrpse, initPce, tgtPce, player))
-                if (tgtPce->pieceID == PieceID::PAWN)
-                    appDta(data, curPos);
+            if (!isOOB(curPos)) {
+                Piece *tgtPce{getPce(board, curPos)};
+                if (tgtChk(intrpse, initPce, tgtPce, player)) {
+                    if (intrpse) {
+                        if (i == 0 || i == 8) {
+                            if (tgtPce->fstMove && tgtPce->pieceID == PieceID::PAWN)
+                                appDta(data, curPos);
+                        } else {
+                            if (tgtPce->pieceID == PieceID::PAWN)
+                                appDta(data, curPos);
+                        }
+                    } else {
+                        if (tgtPce->pieceID == PieceID::PAWN)
+                            appDta(data, curPos);
+                    }
+                }
+            }
             dealloc(curPos);
         }
     } else {
@@ -1689,6 +1709,7 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
         size_t initSze{pceLoc->utilSze};
         lineMov(board, true, true, path->data[i], pceLoc, player);
         diagMov(board, true, true, path->data[i], pceLoc, player);
+        pawnMov(board, true, true, path->data[i], pceLoc, player);
         size_t fnlSize{pceLoc->utilSze};
 
         // Interposing pieces were found
@@ -1860,8 +1881,19 @@ bool unObPth(const Board *const board, const Coord *const initPos, const Coord *
     if (initPos == tgtPos)
         return true;
 
-    const Coord *start{lessEq(initPos, tgtPos) ? initPos : tgtPos};
-    const Coord *end{lessEq(initPos, tgtPos) ? tgtPos : initPos};
+    const Coord *start{};
+    const Coord *end{};
+
+    if (abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col)) {
+        // Diagonal Path
+        start = initPos->row > tgtPos->row ? tgtPos : initPos;
+        end = initPos->row > tgtPos->row ? initPos : tgtPos;
+    } else {
+        // Vertical/Horizontal Path
+        start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
+        end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
+    }
+
     Array *path = calcPth(board, initPos, tgtPos, true);
     bool uobsPth{false};
 
@@ -1911,15 +1943,12 @@ Piece *newPce(const PlyrClr pceClr, const PieceID pieceID) {
         piece->empty = true;
         piece->pceClr = PlyrClr::NONE;
         piece->pieceID = PieceID::EMPTY;
-        piece->fstMove = false;
-        piece->inCheck = false;
     } else {
         piece->empty = false;
         piece->pceClr = pceClr;
         piece->pieceID = pieceID;
-        piece->fstMove = true;
-        piece->inCheck = false;
     }
+    piece->fstMove = true;
 
     return piece;
 }

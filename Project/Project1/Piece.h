@@ -16,7 +16,6 @@ struct Piece {
     bool empty;
     PlyrClr pceClr;
     bool fstMove;
-    bool inCheck;
 };
 
 Piece *newPce(PlyrClr = PlyrClr::NONE, PieceID = PieceID::EMPTY);
