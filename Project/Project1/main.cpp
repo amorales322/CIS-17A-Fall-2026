@@ -578,362 +578,99 @@ void drClmRw(const char *left, const char *right, const size_t inrWdth, const bo
     }
 }
 
+void drASCII(const char *letter[], const size_t row) {
+    if (row >= 3 && row <= 7)
+        drawNum(letter[row - 3]);
+    else
+        cout << getBlnk(24, false);
+}
+
 /*
  * Letters
  * https://www.asciiart.eu/text-to-ascii-art
  */
+
 void drawA(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("_");
-            break;
-        case 4: //
-            drawNum("/ \\");
-            break;
-        case 5:
-            drawNum("/ _ \\");
-            break;
-        case 6:
-            drawNum("/ ___ \\");
-            break;
-        case 7:
-            drawNum("/_/   \\_\\");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"_", "/ \\", "/ _ \\", "/ ___ \\", "/_/   \\_\\"};
+    drASCII(LETTER, row);
 }
 
 void drawB(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("____");
-            break;
-        case 4: //
-            drawNum("| __ )");
-            break;
-        case 5:
-            drawNum("|  _ \\");
-            break;
-        case 6:
-            drawNum("| |_) |");
-            break;
-        case 7:
-            drawNum("|____/");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"____", "| __ )", "|  _ \\", "| |_) |", "|____/"};
+    drASCII(LETTER, row);
 }
 
 void drawC(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("____");
-            break;
-        case 4: //
-            drawNum("/ ___|");
-            break;
-        case 5:
-            drawNum("| |     ");
-            break;
-        case 6:
-            drawNum("| |___  ");
-            break;
-        case 7:
-            drawNum("\\____|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"____", "/ ___|", "| |     ", "| |___  ", "\\____|"};
+    drASCII(LETTER, row);
 }
 
 void drawD(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("____");
-            break;
-        case 4: //
-            drawNum("|  _ \\");
-            break;
-        case 5:
-            drawNum("| | | |");
-            break;
-        case 6:
-            drawNum("| |_| |");
-            break;
-        case 7:
-            drawNum("|____/");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"____", "|  _ \\", "| | | |", "| |_| |", "|____/"};
+    drASCII(LETTER, row);
 }
 
 void drawE(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("_____");
-            break;
-        case 4: //
-            drawNum("| ____|");
-            break;
-        case 5:
-            drawNum("|  _| ");
-            break;
-        case 6:
-            drawNum("| |___");
-            break;
-        case 7:
-            drawNum("|_____|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"_____", "| ____|", "|  _| ", "| |___", "|_____|"};
+    drASCII(LETTER, row);
 }
 
 void drawF(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("_____");
-            break;
-        case 4: //
-            drawNum("|  ___|");
-            break;
-        case 5:
-            drawNum("| |_  ");
-            break;
-        case 6:
-            drawNum("|  _| ");
-            break;
-        case 7:
-            drawNum("|_|   ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"_____", "|  ___|", "| |_  ", "|  _| ", "|_|   "};
+    drASCII(LETTER, row);
 }
 
 void drawG(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("____");
-            break;
-        case 4: //
-            drawNum("/ ___|");
-            break;
-        case 5:
-            drawNum("| |  _  ");
-            break;
-        case 6:
-            drawNum("| |_| |  ");
-            break;
-        case 7:
-            drawNum("\\____|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"____", "/ ___|", "| |  _  ", "| |_| |  ", "\\____|"};
+    drASCII(LETTER, row);
 }
 
 void drawH(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("_   _");
-            break;
-        case 4: //
-            drawNum("| | | |");
-            break;
-        case 5:
-            drawNum("| |_| |");
-            break;
-        case 6:
-            drawNum("|  _  |");
-            break;
-        case 7:
-            drawNum("|_| |_|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *LETTER[] = {"_   _", "| | | |", "| |_| |", "|  _  |", "|_| |_|"};
+    drASCII(LETTER, row);
 }
-
 
 /*
  * Numbers
  */
 void draw1(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" _ ");
-            break;
-        case 4: //
-            drawNum("/ |");
-            break;
-        case 5:
-        case 6:
-            drawNum("| |");
-            break;
-        case 7:
-            drawNum("|_|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" _ ", "/ |", "| |", "| |", "|_|"};
+    drASCII(NUMBER, row);
 }
 
 void draw2(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" ____  ");
-            break;
-        case 4: //
-            drawNum("|___ \\ ");
-            break;
-        case 5:
-            drawNum("  __) |");
-            break;
-        case 6:
-            drawNum(" / __/ ");
-            break;
-        case 7:
-            drawNum("|_____|");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" ____  ", "|___ \\ ", "  __) |", " / __/ ", "|_____|"};
+    drASCII(NUMBER, row);
 }
 
 void draw3(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" _____ ");
-            break;
-        case 4: //
-            drawNum("|___ / ");
-            break;
-        case 5:
-            drawNum("  |_ \\ ");
-            break;
-        case 6:
-            drawNum(" ___) |");
-            break;
-        case 7:
-            drawNum("|____/ ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" _____ ", "|___ / ", "  |_ \\ ", " ___) |", "|____/ "};
+    drASCII(NUMBER, row);
 }
 
 void draw4(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" _  _   ");
-            break;
-        case 4: //
-            drawNum("| || |  ");
-            break;
-        case 5:
-            drawNum("| || |_ ");
-            break;
-        case 6:
-            drawNum("|__   _|");
-            break;
-        case 7:
-            drawNum("   |_|  ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" _  _   ", "| || |  ", "| || |_ ", "|__   _|", "   |_|  "};
+    drASCII(NUMBER, row);
 }
 
 void draw5(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" ____  ");
-            break;
-        case 4: //
-            drawNum("| ___| ");
-            break;
-        case 5:
-            drawNum("|___ \\ ");
-            break;
-        case 6:
-            drawNum(" ___) |");
-            break;
-        case 7:
-            drawNum("|____/ ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" ____  ", "| ___| ", "|___ \\ ", " ___) |", "|____/ "};
+    drASCII(NUMBER, row);
 }
 
 void draw6(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("  __   ");
-            break;
-        case 4: //
-            drawNum(" / /_  ");
-            break;
-        case 5:
-            drawNum("| '_ \\ ");
-            break;
-        case 6:
-            drawNum("| (_) |");
-            break;
-        case 7:
-            drawNum(" \\___/ ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {"  __   ", " / /_  ", "| '_ \\ ", "| (_) |", " \\___/ "};
+    drASCII(NUMBER, row);
 }
 
 void draw7(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum(" _____ ");
-            break;
-        case 4: //
-            drawNum("|___  |");
-            break;
-        case 5:
-            drawNum("   / / ");
-            break;
-        case 6:
-            drawNum("  / /  ");
-            break;
-        case 7:
-            drawNum(" /_/   ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {" _____ ", "|___  |", "   / / ", "  / /  ", " /_/   "};
+    drASCII(NUMBER, row);
 }
 
 void draw8(const size_t row) {
-    switch (row) {
-        case 3:
-            drawNum("  ___  ");
-            break;
-        case 4: //
-            drawNum(" ( _ ) ");
-            break;
-        case 5:
-            drawNum(" / _ \\ ");
-            break;
-        case 6:
-            drawNum("| (_) |");
-            break;
-        case 7:
-            drawNum(" \\___/ ");
-            break;
-        default:
-            cout << getBlnk(24, false);
-    }
+    static const char *NUMBER[] = {"  ___  ", " ( _ ) ", " / _ \\ ", "| (_) |", " \\___/ "};
+    drASCII(NUMBER, row);
 }
 
 /*
@@ -2064,7 +1801,7 @@ void drwRook(const bool light, const size_t row, const PlyrClr &player) {
         case 3:
             drClmRw("_  _  _", light);
             break;
-        case 4: //
+        case 4:
             drClmRw(player == PlyrClr::WHITE ? "|#||#||#|" : "| || || |", light);
             break;
         case 5:

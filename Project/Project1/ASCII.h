@@ -34,6 +34,8 @@ void drClmRw(const char *, const char *, size_t, bool, char);
 
 void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &, char = '\0');
 
+void drASCII(const char *[], size_t);
+
 /*
  * Letters
  */
