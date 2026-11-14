@@ -19,7 +19,7 @@ Coord *newCord(char, char);
 
 Coord *newCord(fstream &);
 
-Coord *copyCord(const Coord *);
+Coord *cpyCord(const Coord *);
 
 // File Writer
 void toFile(fstream &, Coord *);
@@ -30,19 +30,15 @@ Coord *fmChsNt(const string &);
 // Converts from Coord struct to chess notation
 string toChsNt(const Coord *);
 
-// Increments a coordinate by some value
-void incrmnt(Coord *, const Coord *);
-void incrmnt(Coord *, char, char);
+// Adds two coordinates together
+void add(Coord *, const Coord *);
+void add(Coord *, char, char);
 
 void dealloc(Coord *);
 
 /*
  * Comparison Functions
  */
-
-bool lessThn(const Coord *, const Coord *);
-
-bool lessThn(const Coord *, char, char);
 
 bool lessEq(const Coord *, const Coord *);
 

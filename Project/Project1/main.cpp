@@ -393,7 +393,7 @@ void appDta(Array *const array, const Coord *const coord) {
     if (search(array, coord) == -1) {
         if (array->utilSze >= array->size)
             resize(array);
-        array->data[array->utilSze++] = copyCord(coord);
+        array->data[array->utilSze++] = cpyCord(coord);
         array->empty = false;
     }
 }
@@ -404,7 +404,7 @@ void appDta(Array *const to, const Array *const from) {
         if (to->size < fnlSize)
             resize(to, fnlSize);
         for (unsigned int i{to->utilSze}; i < fnlSize; i++)
-            to->data[i] = copyCord(from->data[i - to->utilSze]);
+            to->data[i] = cpyCord(from->data[i - to->utilSze]);
         to->utilSze = fnlSize;
         to->empty = false;
     }
@@ -567,26 +567,15 @@ void drClmRw(const char *left, const char *right, const size_t inrWdth, const bo
     cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << getBlnk(inrWdth, filChar) << right << ' ' << getBlnk(rgtWdth, lghtCel);
 }
 
-void drClmRw(const char *left, const char *right, const size_t inrWdth, const bool lghtCel, const PlyrClr &player) {
-    static const size_t width{23};
-    size_t remWdth{width - inrWdth - strlen(left) - strlen(right) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << (player == PlyrClr::WHITE ? getBlnk(inrWdth, '#') : getBlnk(inrWdth, ' ')) << right << ' ' <<
-            getBlnk(rgtWdth, lghtCel);
-}
-
 void drClmRw(const char *left, const char *right, const size_t inrWdth, const bool lghtCel, const PlyrClr &player, const char filChar) {
-    static const size_t width{23};
-    size_t remWdth{width - inrWdth - strlen(left) - strlen(right) - 2};
-    size_t lftWdth{clcLftW(remWdth)};
-    size_t rgtWdth{clcRgtW(remWdth)};
-
-    // Print cell row
-    cout << '|' << getBlnk(lftWdth, lghtCel) << ' ' << left << (player == PlyrClr::WHITE ? getBlnk(inrWdth, '#') : getBlnk(inrWdth, filChar)) << right << ' ' <<
-            getBlnk(rgtWdth, lghtCel);
+    if (player == PlyrClr::WHITE)
+        drClmRw(left, right, inrWdth, lghtCel, '#');
+    else {
+        if (filChar == '\0')
+            drClmRw(left, right, inrWdth, lghtCel, ' ');
+        else
+            drClmRw(left, right, inrWdth, lghtCel, filChar);
+    }
 }
 
 /*
@@ -1363,16 +1352,16 @@ string toChsNt(const Coord *const pos) {
     return chsNot;
 }
 
-void incrmnt(Coord *const val, const Coord *const by) {
-    incrmnt(val, by->row, by->col);
+void add(Coord *const val, const Coord *const by) {
+    add(val, by->row, by->col);
 }
 
-void incrmnt(Coord *const val, const char row, const char col) {
+void add(Coord *const val, const char row, const char col) {
     val->row += row;
     val->col += col;
 }
 
-Coord *copyCord(const Coord *const toCopy) {
+Coord *cpyCord(const Coord *const toCopy) {
     return newCord(toCopy->row, toCopy->col);
 }
 
@@ -1380,14 +1369,6 @@ void dealloc(Coord *coord) {
     if (coord != nullptr)
         delete coord;
     coord = nullptr;
-}
-
-bool lessThn(const Coord *const a, const Coord *const b) {
-    return lessThn(a, b->row, b->col);
-}
-
-bool lessThn(const Coord *const a, const char bRow, const char bCol) {
-    return a->row < bRow && a->col < bCol;
 }
 
 bool lessEq(const Coord *const a, const Coord *const b) {
@@ -1505,8 +1486,8 @@ void kingMov(const Board *const board, const bool tgtMode, const Coord *const in
     Piece *initPce{getPce(board, initPos)};
 
     for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
-        Coord *curPos{copyCord(initPos)};
-        incrmnt(curPos, &offsets[i]);
+        Coord *curPos{cpyCord(initPos)};
+        add(curPos, &offsets[i]);
 
         if (!isOOB(curPos)) {
             Piece *tgtPce{getPce(board, curPos)};
@@ -1589,8 +1570,8 @@ void knitMov(const Board *const board, const bool tgtMode, const bool intrpse, c
     Piece *initPce{getPce(board, initPos)};
 
     for (int i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
-        Coord *curPos{copyCord(initPos)};
-        incrmnt(curPos, &offsets[i]);
+        Coord *curPos{cpyCord(initPos)};
+        add(curPos, &offsets[i]);
         if (!isOOB(curPos)) {
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
@@ -1631,8 +1612,8 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
 
         for (size_t i{start}; i < end; i++) {
-            curPos = copyCord(initPos);
-            incrmnt(curPos, &offsets[i]);
+            curPos = cpyCord(initPos);
+            add(curPos, &offsets[i]);
             if (!isOOB(curPos)) {
                 Piece *tgtPce{getPce(board, curPos)};
                 if (tgtChk(intrpse, initPce, tgtPce, player)) {
@@ -1660,8 +1641,8 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
         size_t strStrt = initPce->pceClr == PlyrClr::WHITE ? start : 6;
         size_t strEnd = initPce->pceClr == PlyrClr::WHITE ? 2 : end;
         for (size_t i{start}; i < end; i++) {
-            curPos = copyCord(initPos);
-            incrmnt(curPos, &offsets[i]);
+            curPos = cpyCord(initPos);
+            add(curPos, &offsets[i]);
             if (vldPcMv(board, getPce(board, initPos), curPos)) {
                 // If checking diagonals
                 if (i >= diagSta && i < diagSta + 2) {
@@ -1846,12 +1827,12 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             if (incBnds & !isOOB(start))
                 appDta(path, start);
 
-            curPos = copyCord(start);
-            incrmnt(curPos, incAmt);
+            curPos = cpyCord(start);
+            add(curPos, incAmt);
             curPce = getPce(board, curPos);
             while (!isOOB(curPos) && !isEqual(curPos, end) && curPce->empty) {
                 appDta(path, curPos);
-                incrmnt(curPos, incAmt);
+                add(curPos, incAmt);
                 curPce = getPce(board, curPos);
             }
             if (incBnds && !isOOB(end))
@@ -1865,11 +1846,11 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
 
 
 Coord *walkPth(const Board *const board, const Coord *const initPos, const char rowOfst, const char colOfst) {
-    Coord *curPos{copyCord(initPos)};
+    Coord *curPos{cpyCord(initPos)};
     Piece *tgtPce;
 
     do {
-        incrmnt(curPos, rowOfst, colOfst);
+        add(curPos, rowOfst, colOfst);
         tgtPce = getPce(board, curPos);
     } while (!isOOB(curPos) && tgtPce->empty);
 

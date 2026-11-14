@@ -32,9 +32,7 @@ void drawNum(const char *, size_t = 23);
 
 void drClmRw(const char *, const char *, size_t, bool, char);
 
-void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &);
-
-void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &, char);
+void drClmRw(const char *, const char *, size_t, bool, const PlyrClr &, char = '\0');
 
 /*
  * Letters
@@ -58,8 +56,6 @@ void drawH(size_t);
 /*
  * Numbers
  */
-void drwLtrs();
-
 void draw1(size_t);
 
 void draw2(size_t);

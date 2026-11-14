@@ -76,30 +76,17 @@ bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
  * Returns: Array of safe spaces a king can move to, or an empty array if none exist
  */
 Array *sfeMves(const Board *, const Coord *, Array *);
-
 Array *sfeMves(const Board *, const Coord *);
 
-
-/*
- * Determines if a stalemate has occurred.
- *
- * Returns: If a stalemate has occurred
- */
 bool stlmte(const Board *, PlyrClr);
 
 /*
  * Calculates a straight line path between two points. Bounds default to exclusive.
  *
  * Returns: Empty array if there is no straight line path between the two points, or an array of all points along the path.
-
  */
 Array *calcPth(const Board *, const Coord *, const Coord *, bool = false);
 
-/*
- * Walks a straight line path between two points until it goes out of bounds or stops at a piece, and returns the final position
- *
- * Returns: The final position along the path
- */
 Coord *walkPth(const Board *, const Coord *, char, char);
 
 
