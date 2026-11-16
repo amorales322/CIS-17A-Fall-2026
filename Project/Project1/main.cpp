@@ -1329,7 +1329,7 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
     // {+-2, 0} offsets are calculated if the pawn has not moved yet
     // Order: (White) 2 Space Forward, 1 Space Forward, Diagonal Left, Diagonal Right, (Black) Diagonal Right, Diagonal Left, 1 Space Forward, 2 Space Forward
     static const Coord offsets[] = {Coord{-2, 0}, Coord{-1, 0}, Coord{-1, -1}, Coord{-1, 1}, Coord{1, -1}, Coord{1, 1}, Coord{1, 0}, Coord{2, 0}};
-    const Piece *const initPce{};
+    const Piece *const initPce{getPce(board, initPos)};
     Coord *curPos;
     size_t start;
     size_t end;
