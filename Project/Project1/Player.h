@@ -2,7 +2,7 @@
 * File:   Player.h
  * Author: Anthony Morales
  * Created on October 24, 2026, 1:54 PM
- * Purpose:  Project 1 - Chess
+ * Purpose:  CIS-17A Fall 2026 Project 1 - Chess
  */
 
 #ifndef PLAYER_H

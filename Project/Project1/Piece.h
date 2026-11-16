@@ -2,7 +2,7 @@
 * File:   Piece.h
  * Author: Anthony Morales
  * Created on October 24, 2026, 1:54 PM
- * Purpose:  Project 1 - Chess
+ * Purpose:  CIS-17A Fall 2026 Project 1 - Chess
  */
 
 #ifndef PIECE_H
@@ -33,10 +33,15 @@ void dealloc(Piece *);
  * Piece Drawing Functions
  */
 void drwKing(bool, size_t, const PlyrClr &);
+
 void drwQuen(bool, size_t, const PlyrClr &);
+
 void drwRook(bool, size_t, const PlyrClr &);
+
 void drwBshp(bool, size_t, const PlyrClr &);
+
 void drwKnit(bool, size_t, const PlyrClr &);
+
 void drwPawn(bool, size_t, const PlyrClr &);
 
 #endif

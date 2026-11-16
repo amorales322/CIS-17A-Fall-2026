@@ -2,7 +2,7 @@
 * File:   main.cpp
  * Author: Anthony Morales
  * Created on October 24, 2026, 1:54 PM
- * Purpose:  Project 1 - Chess
+ * Purpose:  CIS-17A Fall 2026 Project 1 - Chess
  */
 
 // System Libraries
@@ -22,6 +22,7 @@ using namespace std;
 #include "moveCalculations.h"
 #include "Piece.h"
 #include "PieceID.h"
+#include "Player.h"
 #include "PlyrClr.h"
 
 
@@ -410,7 +411,7 @@ void appDta(Array *const to, const Array *const from) {
     }
 }
 
-void pop(Array *const array, const int idx = -1) {
+void pop(Array *const array, const int idx) {
     if (!array->empty) {
         if (idx < 0 || idx == array->utilSze - 1) {
             dealloc(array->data[--array->utilSze]);
@@ -430,7 +431,7 @@ void pop(Array *const array, const int idx = -1) {
     }
 }
 
-void resize(Array *array, const int newCap) {
+void resize(Array *const array, const int newCap) {
     if (newCap >= -1) {
         // Increments size by 1
         if (newCap == -1) {
@@ -474,7 +475,7 @@ void resize(Array *array, const int newCap) {
     }
 }
 
-void clear(Array *array) {
+void clear(Array *const array) {
     for (int i{0}; i < array->size; i++) {
         dealloc(array->data[i]);
         array->data[i] = nullptr;
@@ -518,11 +519,11 @@ int search(const Array *const array, const Coord *const target) {
 /*
  * Utility
  */
-size_t clcLftW(size_t width) {
+size_t clcLftW(const size_t width) {
     return width % 2 == 0 ? width / 2 : width / 2 + 1;
 }
 
-size_t clcRgtW(size_t width) {
+size_t clcRgtW(const size_t width) {
     return width / 2;
 }
 
@@ -677,7 +678,7 @@ void draw8(const size_t row) {
  * Board.h Functions
  */
 
-Board *newBord(fstream &gmeFile, bool frmFile) {
+Board *newBord(fstream &gmeFile, const bool frmFile) {
     gmeFile.seekg(0, ios::beg);
     Board *board = new Board;
 
@@ -697,9 +698,9 @@ Board *newBord(fstream &gmeFile, bool frmFile) {
         read(gmeFile, board->stlemte);
         read(gmeFile, board->deadPos);
         board->board = new Piece **[board->VERTSZE];
-        for (int row{0}; row < board->VERTSZE; row++) {
+        for (size_t row{0}; row < board->VERTSZE; row++) {
             board->board[row] = new Piece *[board->HORZNSZ];
-            for (int col{0}; col < board->HORZNSZ; col++) {
+            for (size_t col{0}; col < board->HORZNSZ; col++) {
                 board->board[row][col] = newPce(gmeFile);
             }
         }
@@ -711,11 +712,10 @@ Board *newBord(fstream &gmeFile, bool frmFile) {
         board->bKngPos = newCord(1, 5);
     }
 
-
     return board;
 }
 
-void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, Board *const board) {
+void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, const Board *const board) {
     // Save Player Data
     toFile(plyr1, board->white);
     toFile(plyr2, board->black);
@@ -729,8 +729,8 @@ void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, Board *const board
     write(gmeFile, board->stlemte);
     write(gmeFile, board->deadPos);
 
-    for (int row{0}; row < board->VERTSZE; row++)
-        for (int col{0}; col < board->VERTSZE; col++)
+    for (size_t row{0}; row < board->VERTSZE; row++)
+        for (size_t col{0}; col < board->VERTSZE; col++)
             toFile(gmeFile, board->board[row][col]);
 
     toFile(gmeFile, board->wKngPos);
@@ -759,16 +759,16 @@ void alocPce(Board *const board) {
     board->board = new Piece **[board->VERTSZE];
 
     // Piece Initialization
-    for (int row{0}; row < board->VERTSZE; row++) {
+    for (size_t row{0}; row < board->VERTSZE; row++) {
         board->board[row] = new Piece *[board->HORZNSZ];
-        for (int col{0}; col < board->HORZNSZ; col++)
+        for (size_t col{0}; col < board->HORZNSZ; col++)
             board->board[row][col] = nullptr;
     }
 
     /*
      *  Pawn Initialization
      */
-    for (int col{1}; col < 9; col++) {
+    for (size_t col{1}; col < 9; col++) {
         board->board[2][col] = newPce(PlyrClr::BLACK, PieceID::PAWN);
         board->board[7][col] = newPce(PlyrClr::WHITE, PieceID::PAWN);
     }
@@ -814,8 +814,8 @@ void alocPce(Board *const board) {
     board->board[8][7] = newPce(PlyrClr::WHITE, PieceID::KNIGHT);
 
     // Allocate remaining if empty
-    for (int row{0}; row < board->VERTSZE; row++) {
-        for (int col{0}; col < board->HORZNSZ; col++)
+    for (size_t row{0}; row < board->VERTSZE; row++) {
+        for (size_t col{0}; col < board->HORZNSZ; col++)
             if (board->board[row][col] == nullptr)
                 board->board[row][col] = newPce();
     }
@@ -823,8 +823,8 @@ void alocPce(Board *const board) {
 
 bool deadPos(const Board *const board) {
     // Condition 1: Checks if only kings, bishops and knights remain
-    for (int row{1}; row < board->VERTSZE - 1; row++) {
-        for (int col{1}; col < board->HORZNSZ - 1; col++) {
+    for (size_t row{1}; row < board->VERTSZE - 1; row++) {
+        for (size_t col{1}; col < board->HORZNSZ - 1; col++) {
             Piece *curPce{getPce(board, row, col)};
             if (curPce->pieceID != PieceID::KING && curPce->pieceID != PieceID::BISHOP && curPce->pieceID != PieceID::KNIGHT)
                 return false;
@@ -835,14 +835,13 @@ bool deadPos(const Board *const board) {
 }
 
 void drawBrd(const Board *const board) {
-    static const size_t width{23};
     Piece *curPce;
     bool lghtCel;
 
     // Draw Board Numbers
     cout << "\n\n" << board->black->name << "\n\n";
-    for (int cellRow{3}; cellRow < 9; cellRow++) {
-        for (int col{0}; col < board->HORZNSZ - 1; col++) {
+    for (size_t cellRow{3}; cellRow < 9; cellRow++) {
+        for (size_t col{0}; col < board->HORZNSZ - 1; col++) {
             switch (col) {
                 case 1:
                     drawA(cellRow);
@@ -872,17 +871,17 @@ void drawBrd(const Board *const board) {
                     cout << getBlnk(24, false);
             }
         }
-        cout << "\n";
+        cout << '\n';
     }
 
-    for (int row{1}; row < board->VERTSZE - 1; row++) {
+    for (size_t row{1}; row < board->VERTSZE - 1; row++) {
         // Draw top of cell
         cout << getBlnk(24, false);
-        for (int col{1}; col < board->HORZNSZ - 1; col++)
-            cout << '+' << string(width, '-');
+        for (size_t col{1}; col < board->HORZNSZ - 1; col++)
+            cout << '+' << string(23, '-');
         cout << "+\n";
-        for (int cellRow{0}; cellRow < 11; cellRow++) {
-            for (int col{0}; col < board->HORZNSZ - 1; col++) {
+        for (size_t cellRow{0}; cellRow < 11; cellRow++) {
+            for (size_t col{0}; col < board->HORZNSZ - 1; col++) {
                 if (col == 0) {
                     switch (row) {
                         case 1:
@@ -947,8 +946,8 @@ void drawBrd(const Board *const board) {
     }
     // Draw bottom of board
     cout << getBlnk(24, false);
-    for (int col{1}; col < board->HORZNSZ - 1; col++)
-        cout << '+' << string(width, '-');
+    for (size_t col{1}; col < board->HORZNSZ - 1; col++)
+        cout << '+' << string(23, '-');
     cout << "+\n\n" << board->white->name << "\n\n";
 }
 
@@ -1008,7 +1007,11 @@ bool getOpt() {
 }
 
 Piece *getPce(const Board *const board, const Coord *const coord) {
-    return board->board[coord->row][coord->col];
+    return getPce(board, coord->row, coord->col);
+}
+
+Piece *getPce(const Board *const board, const size_t row, const size_t col) {
+    return board->board[row][col];
 }
 
 void mvePce(Board *const board, const Coord *const a, const Coord *const b) {
@@ -1016,7 +1019,7 @@ void mvePce(Board *const board, const Coord *const a, const Coord *const b) {
     Piece *pceB{getPce(board, b)};
     Piece *tmp{pceA};
 
-    if (!getPce(board, b)->empty) {
+    if (!pceB->empty) {
         if (pceA->pceClr == PlyrClr::WHITE)
             cout << board->white->name << " has captured " << board->black->name << "'s " << getName(board, b) << "!\n";
         else
@@ -1030,20 +1033,16 @@ void mvePce(Board *const board, const Coord *const a, const Coord *const b) {
     board->board[b->row][b->col] = tmp;
 }
 
-Piece *getPce(const Board *const board, const size_t row, const size_t col) {
-    return board->board[row][col];
-}
-
 const char *getName(const Board *const board, const Coord *const coord, const bool captlze) {
     return getName(board, coord->row, coord->col, captlze);
 }
 
 const char *getName(const Board *const board, const size_t row, const size_t col, const bool captlze) {
-    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knighxt", "Pawn"};
+    static const char *PCENME_U[7] = {"N/A", "King", "Queen", "Rook", "Bishop", "Knight", "Pawn"};
     static const char *PCENME_L[7] = {"N/A", "king", "queen", "rook", "bishop", "knight", "pawn"};
     if (captlze)
-        return PCENME_U[static_cast<size_t>(board->board[row][col]->pieceID)];
-    return PCENME_L[static_cast<size_t>(board->board[row][col]->pieceID)];
+        return PCENME_U[static_cast<size_t>(getPce(board, row, col)->pieceID)];
+    return PCENME_L[static_cast<size_t>(getPce(board, row, col)->pieceID)];
 }
 
 bool isOOB(const Coord *const coord) {
@@ -1076,7 +1075,7 @@ Coord *newCord(fstream &file) {
     return tuple;
 }
 
-void toFile(fstream &file, Coord *coord) {
+void toFile(fstream &file, Coord *const coord) {
     file.write(reinterpret_cast<char *>(coord), sizeof(Coord));
 }
 
@@ -1139,7 +1138,7 @@ string getFPth(const string &comp1, const string &comp2) {
     return getFPth(comp1, comp2);
 }
 
-void opnFile(fstream &file, const string &filePth, bool newFile) {
+void opnFile(fstream &file, const string &filePth, const bool newFile) {
     if (newFile)
         file.open(filePth, ios::binary | ios::in | ios::out | ios::trunc);
     else {
@@ -1207,7 +1206,7 @@ void read(fstream &file, string &data) {
     file.read(data.data(), nameLen * sizeof(data[0]));
 }
 
-void write(fstream &file, string data) {
+void write(fstream &file, const string &data) {
     size_t nameLen{data.length()};
     write(file, nameLen);
     file.write(data.data(), nameLen * sizeof(data[0]));
@@ -1306,7 +1305,7 @@ void knitMov(const Board *const board, const bool tgtMode, const bool intrpse, c
     static const Coord offsets[] = {Coord{-2, -1}, Coord{-2, 1}, Coord{-1, 2}, {1, 2}, Coord{2, 1}, Coord{2, -1}, Coord{1, -2}, Coord{-1, -2}};
     Piece *initPce{getPce(board, initPos)};
 
-    for (int i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
+    for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
         Coord *curPos{cpyCord(initPos)};
         add(curPos, &offsets[i]);
         if (!isOOB(curPos)) {
@@ -1330,11 +1329,10 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
     // {+-2, 0} offsets are calculated if the pawn has not moved yet
     // Order: (White) 2 Space Forward, 1 Space Forward, Diagonal Left, Diagonal Right, (Black) Diagonal Right, Diagonal Left, 1 Space Forward, 2 Space Forward
     static const Coord offsets[] = {Coord{-2, 0}, Coord{-1, 0}, Coord{-1, -1}, Coord{-1, 1}, Coord{1, -1}, Coord{1, 1}, Coord{1, 0}, Coord{2, 0}};
-    const Piece *const initPce{board->board[initPos->row][initPos->col]};
+    const Piece *const initPce{};
     Coord *curPos;
     size_t start;
     size_t end;
-
 
     // tgtMode does not need to account for forward (one or two space) because pawns cannot capture forward and cannot move forward to a space if there is a piece occupying that space
     // interpose mode does not need to account for diagonals because pawns cannot move diagonally if there is no space to capture
@@ -1346,7 +1344,6 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
             start = player == PlyrClr::WHITE ? 2 : 4;
             end = player == PlyrClr::WHITE ? 4 : 6;
         }
-
 
         for (size_t i{start}; i < end; i++) {
             curPos = cpyCord(initPos);
@@ -1400,7 +1397,7 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
 
 void castle(const Board *const board, const Coord *const initPos, Array *const data) {
     static const Coord offsets[] = {Coord{8, 1}, Coord{8, 3}, Coord{8, 8}, Coord{8, 7}, Coord{1, 1}, Coord{1, 3}, Coord{1, 8}, Coord{1, 7}};
-    Piece *initPce{board->board[initPos->row][initPos->col]};
+    Piece *initPce{getPce(board, initPos)};
 
     if (initPce->pieceID == PieceID::KING && initPce->fstMove) {
         size_t start = initPce->pceClr == PlyrClr::WHITE ? 0 : 4;
@@ -1423,7 +1420,7 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
         return false;
 
     Array *path = calcPth(board, kingPos, enmyPos);
-    for (int i{0}; i < path->utilSze; i++) {
+    for (size_t i{0}; i < path->utilSze; i++) {
         size_t initSze{pceLoc->utilSze};
         lineMov(board, true, true, path->data[i], pceLoc, player);
         diagMov(board, true, true, path->data[i], pceLoc, player);
@@ -1432,22 +1429,22 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
 
         // Interposing pieces were found
         if (fnlSize > initSze)
-            for (size_t j{0}; j < fnlSize - initSze; appDta(toWhere, path->data[i]), j++);
+            for (size_t j{0}; j < fnlSize - initSze; j++)
+                appDta(toWhere, path->data[i]);
     }
-
 
     dealloc(path);
     return !pceLoc->empty;
 }
 
-bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool iposeMde, Array *const data, const PlyrClr &player) {
+bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool ipseMde, Array *const data, const PlyrClr &player) {
     bool isSafe;
 
     kingMov(board, true, tgtPos, data, player);
-    lineMov(board, true, iposeMde, tgtPos, data, player);
-    diagMov(board, true, iposeMde, tgtPos, data, player);
-    knitMov(board, true, iposeMde, tgtPos, data, player);
-    pawnMov(board, true, iposeMde, tgtPos, data, player);
+    lineMov(board, true, ipseMde, tgtPos, data, player);
+    diagMov(board, true, ipseMde, tgtPos, data, player);
+    knitMov(board, true, ipseMde, tgtPos, data, player);
+    pawnMov(board, true, ipseMde, tgtPos, data, player);
 
     isSafe = data->empty;
     return isSafe;
@@ -1489,11 +1486,11 @@ Array *sfeMves(const Board *const board, const Coord *const kingPos) {
     return sfePos;
 }
 
-bool stlmte(const Board *board, const PlyrClr player) {
+bool stlmte(const Board *const board, const PlyrClr &player) {
     Coord *curCord;
     Array *vldMves;
     Piece *curPce;
-    for (size_t row{1}; row < board->VERTSZE - 1; row++)
+    for (size_t row{1}; row < board->VERTSZE - 1; row++) {
         for (size_t col{1}; col < board->HORZNSZ - 1; col++) {
             curCord = newCord(row, col);
             curPce = getPce(board, curCord);
@@ -1531,6 +1528,7 @@ bool stlmte(const Board *board, const PlyrClr player) {
             dealloc(curCord);
             dealloc(vldMves);
         }
+    }
     return true;
 }
 
@@ -1556,12 +1554,12 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             incAmt = newCord(0, 1);
         } else if (initPos->col == tgtPos->col) {
             // Vertical Path
-            incAmt = newCord(1, 0);
             start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
             end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
+            incAmt = newCord(1, 0);
         }
         if (incAmt != nullptr) {
-            if (incBnds & !isOOB(start))
+            if (incBnds && !isOOB(start))
                 appDta(path, start);
 
             curPos = cpyCord(start);
@@ -1622,9 +1620,9 @@ bool unObPth(const Board *const board, const Coord *const initPos, const Coord *
     return uobsPth;
 }
 
-bool vldMove(const Coord *const coord, const Array *const vldMves) {
-    for (int i{0}; i < vldMves->utilSze; i++)
-        if (isEqual(vldMves->data[i], coord))
+bool vldMove(const Coord *const target, const Array *const vldMves) {
+    for (size_t i{0}; i < vldMves->utilSze; i++)
+        if (isEqual(vldMves->data[i], target))
             return true;
     return false;
 }
@@ -1817,10 +1815,10 @@ void drwRook(const bool light, const size_t row, const PlyrClr &player) {
         case 8:
             drClmRw(player == PlyrClr::WHITE ? "|#|" : "| |", "|", 3, light, player, '_');
             break;
-        case 10: //
+        case 10:
             drClmRw("(", ")", 7, light, player, '_');
             break;
-        case 11: //
+        case 11:
             drClmRw("/", "\\", 7, light, player, '_');
             break;
         default:
@@ -1873,7 +1871,7 @@ void drwKnit(const bool light, const size_t row, const PlyrClr &player) {
         case 4:
             drClmRw(" /", " _ \\_", 1, light, player);
             break;
-        case 5: //
+        case 5:
             drClmRw("<|", "__<", 4, light, player);
             break;
         case 6:

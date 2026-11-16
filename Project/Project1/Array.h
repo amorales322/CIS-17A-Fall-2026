@@ -1,3 +1,10 @@
+/*
+* File:   Array.h
+ * Author: Anthony Morales
+ * Created on October 24, 2026, 1:54 PM
+ * Purpose:  CIS-17A Fall 2026 Project 1 - Chess
+ */
+
 #ifndef ARRAY_H
 #define ARRAY_H
 
@@ -27,7 +34,7 @@ void appDta(Array *, const Coord *);
 
 void appDta(Array *, const Array *);
 
-void pop(Array *, int);
+void pop(Array *, int = -1);
 
 
 /*

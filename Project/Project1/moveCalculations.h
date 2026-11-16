@@ -2,7 +2,7 @@
 * File:   moveCalculations.h
  * Author: Anthony Morales
  * Created on October 24, 2026, 1:54 PM
- * Purpose:  Project 1 - Chess
+ * Purpose:  CIS-17A Fall 2026 Project 1 - Chess
  */
 
 #ifndef MOVECALCULATIONS_H
@@ -78,7 +78,7 @@ bool sfeSpce(const Board *, const Coord *, const PlyrClr &);
 Array *sfeMves(const Board *, const Coord *, Array *);
 Array *sfeMves(const Board *, const Coord *);
 
-bool stlmte(const Board *, PlyrClr);
+bool stlmte(const Board *, const PlyrClr &);
 
 /*
  * Calculates a straight line path between two points. Bounds default to exclusive.
