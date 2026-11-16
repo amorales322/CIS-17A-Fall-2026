@@ -1,0 +1,352 @@
+Function int main(int argc, char** argv)
+    // Set random number seed
+
+    // Declare & Initialize Variables
+    Declare string flePth1
+    Declare string flePth2
+    Declare string flePth3
+    Declare bool inpt = false
+    Declare Coord *tgtPce = nullptr
+    Declare Coord *whereTo = nullptr
+
+    /*
+     * Game Save Files
+     */
+    Declare fstream plyr1
+    Declare fstream plyr2
+    Declare fstream gameDta
+
+    /*
+     * Loading Data
+     */
+    Display "Would you like to load a game from a save file?: "
+    Set inpt = getOpt()
+    Call cin.ignore()
+    If inpt Then
+        Display "Enter the filename for the game save you would like to load: "
+        Set flePth1 = getFPth()
+        Call opnFile(gameDta, flePth1)
+    Else
+        Disp "Enter the filename for the game save you would like to save to: "
+        flePth1 = getFPth()
+        opnFile(gameDta, flePth1, true)
+    End If
+    Declare Board *board{newBord(gameDta, inpt)}
+
+    Display "Would you like to load player save data for player 1 from a file?: "
+    Set inpt = getOpt()
+    Call cin.ignore()
+    If inpt Then
+        // Player 1
+        Display "Enter the filename for player 1's data that you would like to load: "
+        Set flePth2 = getFPth(flePth1)
+        Call opnFile(plyr1, flePth2)
+    Else
+        Display "Enter the filename for player 1's data that you would like to save to: "
+        Set flePth2 = getFPth(flePth1)
+        Call opnFile(plyr1, flePth2, true)
+    End If
+    Set board->white = newPlyr(plyr1, inpt, 1)
+
+    Display "Would you like to load player save data for player 2 from a file?: "
+    Set inpt = getOpt()
+    Call cin.ignore()
+    If Inpt Then
+        // Player 2
+        Display "Enter the filename for player 2's data that you would like to load: "
+        flePth3 = getFPth(flePth1, flePth2)
+        opnFile(plyr2, flePth3)
+    Else
+        // Player 2
+        Display "Enter the filename for player 2's data that you would like to save to: "
+        Set flePth3 = getFPth(flePth1, flePth2)
+        Call opnFile(plyr2, flePth3, true)
+    End If
+    Set board->black = newPlyr(plyr2, inpt, 2)
+
+
+    /*
+     * Game Arrays
+     */
+    Declare Array *canMove = newArry()
+    Declare Array *vldMves = newArry()
+    Declare Array *whoChk = newArry()
+
+    Declare Array *canIPos = newArry()
+    Declare Array *iPosePs = newArry()
+
+    // Map/Process the Inputs -> Outputs
+    If inpt Then
+        Call ptPlrSt(board->white, board->black)
+    End If
+
+    Do
+        /*
+         * Main Game Loop
+         */
+        Do
+            drawBrd(board)
+            board->deadPos = deadPos(board)
+            If NOT board->deadPos Then
+                If board->check == board->whoTurn Then
+                    Call dealloc(vldMves)
+                    If board->check == PlyrClr::WHITE Then
+                        Set vldMves = sfeMves(board, board->wKngPos, whoChk)
+                    Else
+                        Set vldMves = sfeMves(board, board->bKngPos, whoChk)
+                    End If
+
+                    // If no safe spaces remain after this elimination process ends, the game ends
+                    If vldMves->empty Then
+                        Set board->chkmte = board->whoTurn
+                    Else If board->whoTurn == PlyrClr::WHITE Then
+                        Call appDta(canMove, board->wKngPos)
+                    Else
+                        Call appDta(canMove, board->bKngPos)
+                    End If
+
+                    // If the king is just in check and not in checkmate
+                    If board->chkmte == PlyrClr::NONE Then
+                        If whoChk->utilSze == 1 Then
+                            If board->whoTurn == PlyrClr::WHITE Then
+                                Call pceIntr(board, board->wKngPos, whoChk->data[0], canIPos, iPosePs, board->whoTurn)
+                            Else
+                                Call pceIntr(board, board->bKngPos, whoChk->data[0], canIPos, iPosePs, board->whoTurn)
+                            End If
+
+                            If NOT canIPos->empty Then
+                                Call appDta(canMove, canIPos)
+                            End If
+                        End If
+
+                        // Get Piece to Move
+                        If board->whoTurn == PlyrClr::WHITE Then
+                            Display board->white->name, ", your king is in check! Enter which piece you would like to move (-1 to surrender, -2 to save & quit): "
+                        Else
+                            Display board->black->name, ", your king is in check! Enter which piece you would like to move (-1 to surrender, -2 to save & quit): "
+                        End If
+
+                        Call tgtPce = getInpt()
+                        While (NOT isEqual(tgtPce, -1, -1)) AND (NOT isEqual(tgtPce, -2, -2)) AND (NOT vldMove(tgtPce, canMove))
+                            Display "Invalid selection, select a new piece to move: "
+                            Call dealloc(tgtPce)
+                            Set tgtPce = getInpt()
+                        End While
+
+                        If (NOT isEqual(tgtPce, -1, -1)) AND (NOT isEqual(tgtPce, -2, -2)) Then
+                            Display "Where would you like to move your ", getName(board, tgtPce), " to: "
+                            Set whereTo = getInpt()
+
+                            // If king is selected
+                            If search(canMove, tgtPce) == 0 Then
+                                While NOT vldMove(whereTo, vldMves)
+                                    Display "Cannot move your ", getName(board, tgtPce), " here, enter new spot to move your ", getName(board, tgtPce), " to: "
+                                    Call dealloc(whereTo)
+                                    Set whereTo = getInpt()
+                                }
+                            Else
+                                // While the target location is not the valid location the interposing piece can move to
+                                While NOT isEqual(whereTo, iPosePs->data[search(canIPos, tgtPce)])
+                                    Display "Cannot move your ", getName(board, tgtPce), " here, enter new spot to move your ", getName(board, tgtPce), " to: "
+                                    Call dealloc(whereTo)
+                                    Set whereTo = getInpt()
+                                End While
+                            End If
+                        Else
+                            if (isEqual(tgtPce, -1, -1))
+                                board->surndr = board->whoTurn
+                            else if (isEqual(tgtPce, -2, -2))
+                                board->exitGme = board->whoTurn
+                        End If
+                    End If
+                Else
+                    Set board->stlemte = stlmte(board, board->whoTurn)
+                    If NOT board->stlemte Then
+                        If board->whoTurn == PlyrClr::WHITE Then
+                            Display board->white->name, ", enter which piece you would like to move (-1 to surrender, -2 to save & quit): "
+                        Else
+                            Display board->black->name, ", enter which piece you would like to move (-1 to surrender, -2 to save & quit): "
+                        End If
+
+                        Do
+                            Set tgtPce = getInpt()
+                            While (NOT isEqual(tgtPce, -1, -1)) AND (NOT isEqual(tgtPce, -2, -2)) AND (getPce(board, tgtPce)->empty OR getPce(board, tgtPce)->pceClr != board->whoTurn)
+                                Display "Invalid selection, enter a new piece that you would like to move: "
+                                Call dealloc(tgtPce)
+                                Set tgtPce = getInpt()
+                            End While
+
+                            If (NOT isEqual(tgtPce, -1, -1)) AND (NOT isEqual(tgtPce, -2, -2)) Then
+                                Select getPce(board, tgtPce)->pieceID
+                                    Case PieceID::KING:
+                                        Call dealloc(vldMves)
+                                        Set vldMves = nullptr
+                                        Set vldMves = sfeMves(board, tgtPce)
+                                    Case PieceID::QUEEN:
+                                        Call lineMov(board, false, false, tgtPce, vldMves)
+                                        Call diagMov(board, false, false, tgtPce, vldMves)
+                                    Case PieceID::ROOK:
+                                        Call lineMov(board, false, false, tgtPce, vldMves)
+                                    Case PieceID::BISHOP:
+                                        Call diagMov(board, false, false, tgtPce, vldMves)
+                                    Case PieceID::KNIGHT:
+                                        Call knitMov(board, false, false, tgtPce, vldMves)
+                                    Case PieceID::PAWN:
+                                        Call pawnMov(board, false, false, tgtPce, vldMves)
+                                End Select
+
+                                If vldMves->empty Then
+                                    Display "This piece cannot move anywhere at the moment, enter a new piece you would like to move: "
+                                End If
+                            Else
+                                If isEqual(tgtPce, -1, -1) Then
+                                    Set board->surndr = board->whoTurn
+                                Else If isEqual(tgtPce, -2, -2)
+                                    Set board->exitGme = board->whoTurn
+                                End If
+                            End If
+                        While vldMves->empty AND (board->surndr == PlyrClr::NONE) AND (board->exitGme == PlyrClr::NONE)
+
+                        If (board->surndr == PlyrClr::NONE) AND (board->exitGme == PlyrClr::NONE) Then
+                            Display "Where would you like to move your ", getName(board, tgtPce), " to (Can move to: "
+                            Call pntArry(vldMves)
+                            Display "): "
+                            Set whereTo = getInpt()
+                            While NOT vldMove(whereTo, vldMves)
+                                Display "Cannot move your ", getName(board, tgtPce), " here, enter new spot to move your ", getName(board, tgtPce), " to: "
+                                Call dealloc(whereTo)
+                                Set whereTo = getInpt()
+                            End While
+                        End If
+                    End If
+                End If
+
+                If (board->chkmte == PlyrClr::NONE) AND (NOT board->stlemte) AND (board->surndr == PlyrClr::NONE) AND (board->exitGme == PlyrClr::NONE) Then
+                    Set getPce(board, tgtPce)->fstMove = false
+
+                    If getPce(board, tgtPce)->pieceID == PieceID::KING Then
+                        If board->whoTurn == PlyrClr::WHITE Then
+                            Set board->wKngPos->row = whereTo->row
+                            Set board->wKngPos->col = whereTo->col
+                        Else
+                            Set board->bKngPos->row = whereTo->row
+                            Set board->bKngPos->col = whereTo->col
+                        End If
+                    End If
+
+                    If (getPce(board, tgtPce)->pieceID == PieceID::PAWN) AND (whereTo->row == 1 OR whereTo->row == 8) Then
+                        Call pmtePce(getPce(board, tgtPce))
+                    End If
+
+                    Call mvePce(board, tgtPce, whereTo)
+
+                    If board->whoTurn == PlyrClr::WHITE Then
+                        If NOT sfeSpce(board, board->bKngPos, PlyrClr::BLACK)
+                            Set board->check = PlyrClr::BLACK
+                        Else
+                            Set board->check = PlyrClr::NONE
+                        End If
+                    Else
+                        If NOT sfeSpce(board, board->wKngPos, PlyrClr::WHITE) Then
+                            Set board->check = PlyrClr::WHITE
+                        Else
+                            Set board->check = PlyrClr::NONE
+                        End If
+                    End If
+
+                    If board->whoTurn == PlyrClr::WHITE Then
+                        Set board->whoTurn = PlyrClr::BLACK
+                    Else
+                        Set board->whoTurn = PlyrClr::WHITE
+                    End If
+                End If
+            End If
+
+            Call clrScrn()
+            Call clear(canMove)
+            Call clear(vldMves)
+            Call clear(whoChk)
+            Call clear(canIPos)
+            Call clear(iPosePs)
+            Call dealloc(tgtPce)
+            Call dealloc(whereTo)
+            Set tgtPce = nullptr
+            Set whereTo = nullptr
+        While (board->chkmte == PlyrClr::NONE) AND (NOT board->stlemte) AND (NOT board->deadPos) AND (board->surndr == PlyrClr::NONE) AND (board->exitGme == PlyrClr::NONE)
+
+        // Game Ending
+        If (board->chkmte != PlyrClr::NONE) OR (board->surndr != PlyrClr::NONE) Then
+            If board->chkmte != PlyrClr::NONE Then
+                If board->chkmte == PlyrClr::WHITE Then
+                    Display "Game over, ", board->black->name, " wins!.\n"
+                Else
+                    Display "Game over, ", board->white->name, " wins!.\n"
+                End If
+            End If
+
+            If board->surndr != PlyrClr::NONE Then
+                If board->surndr == PlyrClr::WHITE Then
+                    Display board->white->name, " has chosen to surrender, ", board->black->name, " wins!.\n"
+                Else
+                    Display board->black->name, " has chosen to surrender, ", board->white->name, " wins!.\n"
+                End If
+            End If
+            
+            If (board->chkmte == PlyrClr::WHITE) OR (board->surndr == PlyrClr::WHITE) Then
+                Set board->white->nLoss = board->white->nLoss + 1
+                Set board->black->nWins = board->black->nWins + 1
+            Else
+                Set board->white->nWins = board->white->nWins + 1
+                Set board->black->nLoss = board->black->nLoss + 1
+            End If
+        End If
+
+        If board->stlemte Then
+            Display "Stalemate detected, game over.\n"
+        End If
+
+        If board->deadPos Then
+            Display "Dead position detected, game over.\n"
+        End If
+
+        Select board->exitGme
+            Case PlyrClr::NONE:
+                Display "Would you like to start a new game (Y) or save & quit (N)?: "
+                Set inpt = getOpt()
+                Call rstBrd(board)
+            Case PlyrClr::WHITE:
+                Display board->white->name, " has requested to end the game, would you like to end the game ", board->black->name, " (Y or N)?: "
+                Set inpt = !getOpt()
+                If inpt == true Then
+                    Set board->exitGme = PlyrClr::NONE
+                End If
+            Case PlyrClr::BLACK:
+                Display board->black->name, " has requested to end the game, would you like to end the game ", board->white->name, " (Y or N)?: "
+                Set inpt = !getOpt()
+                If inpt == true Then
+                    Set board->exitGme = PlyrClr::NONE
+                End If
+        End Select
+    While inpt
+
+    // Display Inputs/Outputs
+    ptPlrSt(board->white, board->black)
+
+    // Clean up memory and files
+    Display "Saving game...\n"
+    toFile(gameDta, plyr1, plyr2, board)
+
+    dealloc(vldMves)
+    dealloc(canMove)
+    dealloc(whoChk)
+    dealloc(iPosePs)
+    dealloc(canIPos)
+    dealloc(board)
+
+    plyr1.close()
+    plyr2.close()
+    gameDta.close()
+
+    // Exit the Program
+    return 0
+End Function

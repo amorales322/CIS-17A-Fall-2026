@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
         /*
          * Game Ending
          */
-        if (board->chkmte != PlyrClr::NONE | board->surndr != PlyrClr::NONE) {
+        if (board->chkmte != PlyrClr::NONE || board->surndr != PlyrClr::NONE) {
             if (board->chkmte != PlyrClr::NONE)
                 cout << "Game over, " << (board->chkmte == PlyrClr::WHITE ? board->black->name : board->white->name) << " wins!.\n";
             if (board->surndr != PlyrClr::NONE)
