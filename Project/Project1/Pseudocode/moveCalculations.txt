@@ -1,0 +1,507 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Module kingMov(Constant Board* Constant board, Constant bool tgtMode, Constant Coord* Constant initPos, Array* Constant data, Constant PlyrClr Ref player)
+    Declare Static Constant Coord offsets[] = {Coord{-1, -1}, Coord{-1, 0}, Coord{-1, 1}, Coord{0, -1}, Coord{0, 1}, Coord{1, -1}, Coord{1, 0}, Coord{1, 1}}
+    Declare Piece* initPce = getPce(board, initPos)
+
+    For size_t i = 0 To sizeof(offsets) / sizeof(offsets[0])
+        Declare Coord* curPos = cpyCord(initPos)
+        Call add(curPos, offsets[i])
+
+        If NOT isOOB(curPos) Then
+            Declare Piece* tgtPce = getPce(board, curPos)
+            If tgtMode Then
+                If tgtChk(false, initPce, tgtPce, player) Then
+                    If tgtPce->pieceID == PieceID::KING Then
+                        Call appDta(data, curPos)
+                    End If
+                End If
+            Else
+                If vldPcMv(board, initPce, curPos) Then
+                    Call appDta(data, curPos)
+                End If
+            End If
+        End If
+        Call dealloc(curPos)
+    End For
+End Module
+
+Module lineMov(Constant Board* Constant board, Constant bool tgtMode, Constant bool intrpse, Constant Coord* Constant initPos, Array* Constant data, Constant PlyrClr Ref player)
+    Declare Static Constant Coord offsets[] = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}}
+    Declare Piece* initPce = getPce(board, initPos)
+
+    For size_t i = 0 To sizeof(offsets) / sizeof(offsets[0])
+        Declare Coord* curPos = walkPth(board, initPos, offsets[i].row, offsets[i].col)
+        If NOT tgtMode Then
+            Declare Array* path = calcPth(board, initPos, curPos)
+            Call appDta(data, path)
+            Call dealloc(path)
+        End If
+
+        If NOT isOOB(curPos) Then
+            Declare Piece* tgtPce = getPce(board, curPos)
+            If tgtMode Then
+                If tgtChk(intrpse, initPce, tgtPce, player) Then
+                    If tgtPce->pieceID == PieceID::QUEEN OR tgtPce->pieceID == PieceID::ROOK Then
+                        Call appDta(data, curPos)
+                    End If
+                End If
+            Else
+                If vldPcMv(board, getPce(board, initPos), curPos) Then
+                    Call appDta(data, curPos)
+                End If
+            End If
+        End If
+        Call dealloc(curPos)
+    End For
+End Module
+
+Module diagMov(Constant Board* Constant board, Constant bool tgtMode, Constant bool intrpse, Constant Coord* Constant initPos, Array* Constant data, Constant PlyrClr Ref player)
+    Declare Static Constant Coord offsets[] = {Coord{-1, -1}, Coord{-1, 1}, Coord{1, -1}, Coord{1, 1}}
+    Declare Piece* initPce = getPce(board, initPos)
+
+    For size_t i = 0 To sizeof(offsets) / sizeof(offsets[0])
+        Declare Coord* curPos = walkPth(board, initPos, offsets[i].row, offsets[i].col)
+        If NOT tgtMode Then
+            Declare Array* path = calcPth(board, initPos, curPos)
+            Call appDta(data, path)
+            Call dealloc(path)
+        End If
+        If NOT isOOB(curPos) Then
+            Declare Piece* tgtPce = getPce(board, curPos)
+            If tgtMode Then
+                If tgtChk(intrpse, initPce, tgtPce, player) Then
+                    If tgtPce->pieceID == PieceID::QUEEN OR tgtPce->pieceID == PieceID::BISHOP Then
+                        Call appDta(data, curPos)
+                    End If
+                End If
+            Else
+                If vldPcMv(board, getPce(board, initPos), curPos) Then
+                    appDta(data, curPos)
+                End If
+            End If
+        End If
+        Call dealloc(curPos)
+    End For
+End Module
+
+Module knitMov(Constant Board* Constant board, Constant bool tgtMode, Constant bool intrpse, Constant Coord* Constant initPos, Array* Constant data, Constant PlyrClr Ref player)
+    Declare Static Constant Coord offsets[] = {Coord{-2, -1}, Coord{-2, 1}, Coord{-1, 2}, {1, 2}, Coord{2, 1}, Coord{2, -1}, Coord{1, -2}, Coord{-1, -2}}
+    Declare Piece* initPce = getPce(board, initPos)
+
+    For size_t i = 0 To sizeof(offsets) / sizeof(offsets[0])
+        Declare Coord* curPos = cpyCord(initPos)
+        Call add(curPos, offsets[i])
+        If NOT isOOB(curPos) Then
+            Piece* tgtPce = getPce(board, curPos)
+            If tgtMode Then
+                If tgtChk(intrpse, initPce, tgtPce, player) Then
+                    If tgtPce->pieceID == PieceID::KNIGHT Then
+                        Call appDta(data, curPos)
+                    End If
+                End If
+            Else
+                If vldPcMv(board, initPce, curPos) Then
+                    Call appDta(data, curPos)
+                End If
+            End If
+        End If
+        Call dealloc(curPos)
+    End For
+End Module
+
+Module pawnMov(Constant Board* Constant board, Constant bool tgtMode, Constant bool intrpse, Constant Coord* Constant initPos, Array* Constant data, Constant PlyrClr Ref player)
+    Declare Static Constant Coord offsets[] = {Coord{-2, 0}, Coord{-1, 0}, Coord{-1, -1}, Coord{-1, 1}, Coord{1, -1}, Coord{1, 1}, Coord{1, 0}, Coord{2, 0}}
+    const Piece *const initPce = getPce(board, initPos)
+    Declare Coord *curPos
+    Declare size_t start
+    Declare size_t end
+
+    If tgtMode Then
+        If intrpse Then
+            If player == PlyrClr::WHITE Then
+                Set start = 6
+                Set end = 8
+            Else
+                Set start = 0
+                Set end = 2
+            End If
+        Else
+            If player == PlyrClr::WHITE Then
+                Set start = 2
+                Set end = 4
+            Else
+                Set start = 4
+                Set end = 6
+            End If
+        End If
+
+        For size_t i = start To end
+            Set curPos = cpyCord(initPos)
+            Call add(curPos, offsets[i])
+            If NOT isOOB(curPos) Then
+                Declare Piece* tgtPce = getPce(board, curPos)
+                If tgtChk(intrpse, initPce, tgtPce, player) Then
+                    If intrpse Then
+                        If i == 0 OR i == 8 Then
+                            If tgtPce->fstMove AND tgtPce->pieceID == PieceID::PAWN Then
+                                Call appDta(data, curPos)
+                            End If
+                        Else
+                            If tgtPce->pieceID == PieceID::PAWN Then
+                                Call appDta(data, curPos)
+                            End If
+                        End If
+                    Else
+                        If tgtPce->pieceID == PieceID::PAWN Then
+                            Call appDta(data, curPos)
+                        End If
+                    End If
+                End If
+            End If
+            Call dealloc(curPos)
+        End For
+    Else
+        If initPce->pceClr == PlyrClr::WHITE Then
+            If initPce->fstMove Then
+                Set start = 0
+            Else
+                Set start = 1
+            End If
+
+            Set end = 4
+            Declare size_t diagSta = 2
+            Declare size_t strStrt = start
+            Declare size_t strEnd = 2
+        Else
+            Set start = 4
+            If initPce->fstMove Then
+                Set end = 8
+            Else
+                Set end = 7
+            End If
+
+            Declare size_t diagSta = 4
+            Declare size_t strStrt = 6
+            Declare size_t strEnd = end
+        End If
+
+        For size_t i = start To end
+            Set curPos = cpyCord(initPos)
+            Call add(curPos, offsets[i])
+            If vldPcMv(board, getPce(board, initPos), curPos) Then
+                If (i >= diagSta) AND (i < diagSta + 2) Then
+                    If (NOT getPce(board, curPos)->empty) AND (getPce(board, curPos)->pceClr != initPce->pceClr) Then
+                        Call appDta(data, curPos)
+                    End If
+                Else If (i >= strStrt) AND (i < strEnd) Then
+                    If getPce(board, curPos)->empty Then
+                       Call appDta(data, curPos)
+                    End If
+                Else
+                    Call appDta(data, curPos)
+                End If
+            End If
+            Call dealloc(curPos)
+        End For
+    End If
+End Module
+
+Module castle(Constant Board* Constant board, Constant Coord* Constant initPos, Array* Constant data)
+    Declare Static Constant Coord offsets[] = {Coord{8, 1}, Coord{8, 3}, Coord{8, 8}, Coord{8, 7}, Coord{1, 1}, Coord{1, 3}, Coord{1, 8}, Coord{1, 7}}
+    Declare Piece* initPce = getPce(board, initPos)
+
+    If (initPce->pieceID == PieceID::KING) AND (initPce->fstMove) Then
+        If initPce->pceClr == PlyrClr::WHITE Then
+            Declare size_t start = 0
+            Declare size_t end = 4
+        Else
+            Declare size_t start = 4
+            Declare size_t end = 8
+        End If
+
+        // Represented in code using a for loop
+        Declare size_t i = 0
+        Do
+            Declare Piece* offPce = getPce(board, &offsets[i])
+            If (offPce->pieceID == PieceID::ROOK) AND offPce->fstMove AND sfeSpce(board, &offsets[i + 1], initPce->pceClr) AND unObPth(board, initPos, &offsets[i]) Then
+                appDta(data, &offsets[i + 1])
+            End If
+            Set i = i + 2
+        While i < end
+    End If
+End Module
+
+Function Bool pceIntr(Constant Board* Constant board, Constant Coord* Constant kingPos, Constant Coord* Constant enmyPos, Array* Constant pceLoc, Array* Constant toWhere, Constant PlyrClr Ref player)
+    If isEqual(kingPos, enmyPos) Then
+        Return false
+    End If
+
+    If NOT unObPth(board, kingPos, enmyPos)
+        Return false
+    End If
+
+    Declare Array* path = calcPth(board, kingPos, enmyPos)
+    For size_t i = 0 To path->utilSze
+        Declare size_t initSze = pceLoc->utilSze
+        Call lineMov(board, true, true, path->data[i], pceLoc, player)
+        Call diagMov(board, true, true, path->data[i], pceLoc, player)
+        Call pawnMov(board, true, true, path->data[i], pceLoc, player)
+        Declare size_t fnlSize = pceLoc->utilSze
+
+        If fnlSize > initSze Then
+            For size_t j = 0 To fnlSize - initSze
+                Call appDta(toWhere, path->data[i])
+            End For
+        End If
+    End For
+
+    Call dealloc(path)
+    Return NOT pceLoc->empty
+End Function
+
+Function bool sfeSpce(Constant Board* Constant board, Constant Coord* Constant tgtPos, Constant bool ipseMde, Array* Constant data, Constant PlyrClr Ref player)
+    Declare bool isSafe
+
+    Call kingMov(board, true, tgtPos, data, player)
+    Call lineMov(board, true, ipseMde, tgtPos, data, player)
+    Call diagMov(board, true, ipseMde, tgtPos, data, player)
+    Call knitMov(board, true, ipseMde, tgtPos, data, player)
+    Call pawnMov(board, true, ipseMde, tgtPos, data, player)
+
+    Set isSafe = data->empty
+    Return isSafe
+End Function
+
+Function bool sfeSpce(Constant Board* Constant board, Constant Coord* Constant tgtPos, Constant PlyrClr Ref player)
+    Declare Array* posData = newArry()
+    Declare bool isSafe = sfeSpce(board, tgtPos, false, posData, player)
+    Call dealloc(posData)
+    Return isSafe
+End Function
+
+Function Array* sfeMves(Constant Board* Constant board, Constant Coord* Constant kingPos, Array* Constant whoChk)
+    Declare Array* vldMves = newArry()
+    DeclarePiece* kingPce = getPce(board, kingPos)
+
+    Call sfeSpce(board, kingPos, false, whoChk, kingPce->pceClr)
+    Call kingMov(board, false, kingPos, vldMves)
+
+    If NOT vldMves->empty Then
+        For size_t i = vldMves->utilSze - 1 To 0
+            If NOT sfeSpce(board, vldMves->data[i], kingPce->pceClr) Then
+                Call pop(vldMves, i)
+            End If
+        End For
+
+        If sfeSpce(board, vldMves->data[0], kingPce->pceClr) Then
+            Call pop(vldMves, 0)
+        End If
+    End If
+
+    Return vldMves
+End Function
+
+Function Array* sfeMves(Constant Board* Constant board, Constant Coord* Constant kingPos)
+    Declare Array* whoChk = newArry()
+    Declare Array* sfePos = sfeMves(board, kingPos, whoChk)
+    Call dealloc(whoChk)
+    Return sfePos
+End Function
+
+Function bool stlmte(Constant Board* Constant board, Constant PlyrClr Ref player)
+    Define Coord* curCord
+    Define Array* vldMves
+    Define Piece* curPce
+    For size_t row = 1 To board->VERTSZE - 1
+        For size_t col = 1 To board->HORZNSZ - 1
+            Set curCord = newCord(row, col)
+            Set curPce = getPce(board, curCord)
+            Set vldMves = newArry(10)
+            If curPce->pceClr == player Then
+                Select curPce->pieceID
+                    Case PieceID::KING:
+                        Call dealloc(vldMves)
+                        Set vldMves = nullptr
+                        Set vldMves = sfeMves(board, curCord)
+                    Case PieceID::QUEEN:
+                        Call lineMov(board, false, false, curCord, vldMves)
+                        Call diagMov(board, false, false, curCord, vldMves)
+                    Case PieceID::ROOK:
+                        Call lineMov(board, false, false, curCord, vldMves)
+                    Case PieceID::BISHOP:
+                        Call diagMov(board, false, false, curCord, vldMves)
+                    Case PieceID::KNIGHT:
+                        Call knitMov(board, false, false, curCord, vldMves)
+                    Case PieceID::PAWN:
+                        Call pawnMov(board, false, false, curCord, vldMves)
+                End Select
+
+                If NOT vldMves->empty Then
+                    Call dealloc(curCord)
+                    Call dealloc(vldMves)
+                    Return false
+                End If
+            End If
+            dealloc(curCord)
+            dealloc(vldMves)
+        End For
+    End For
+
+    Return true
+End Function
+
+Function Array* calcPth(Constant Board* Constant board, Constant Coord* Constant initPos, Constant Coord* Constant tgtPos, Constant bool incBnds)
+    Declare Array *path = newArry()
+
+    If initPos != tgtPos Then
+        Declare Constant Coord* start = nullptr
+        Declare Constant Coord* end = nullptr
+        Declare Coord* incAmt = nullptr
+        Declare Piece* curPce = nullptr
+        Declare Coord* curPos = nullptr
+
+        If abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col) Then
+            // Diagonal Path
+            If initPos->row > tgtPos->row Then
+                Set start = tgtPos
+                Set end = initPos
+            Else
+                Set start = initPos
+                Set end = tgtPos
+            End If
+
+            If (start->row < end->row) AND (start->col > end->col) Then
+                Set incAmt = newCord(1, -1)
+            Else
+                Set incAmt = newCord(1, 1)
+            End If
+        Else If initPos->row == tgtPos->row Then
+            If lessEq(initPos, tgtPos) Then
+                Set start = initPos
+                Set end = tgtPos
+            Else
+                Set start = tgtPos
+                Set end = initPos
+            End If
+            Set incAmt = newCord(0, 1)
+        Else If initPos->col == tgtPos->col Then
+            // Vertical Path
+            If lessEq(initPos, tgtPos) Then
+                Set start = initPos
+                Set end = tgtPos
+            Else
+                Set start = tgtPos
+                Set end = initPos
+            End If
+            Set incAmt = newCord(1, 0)
+        End If
+
+        If incAmt != nullptr Then
+            If incBnds AND (NOT isOOB(start)) Then
+                Call appDta(path, start)
+            End If
+
+            Set curPos = cpyCord(start)
+            Call add(curPos, incAmt)
+            Set curPce = getPce(board, curPos)
+            While (NOT isOOB(curPos)) AND (NOT isEqual(curPos, end)) AND curPce->empty
+                Call appDta(path, curPos)
+                Call add(curPos, incAmt)
+                Set curPce = getPce(board, curPos)
+            End While
+
+            If incBnds AND (NOT isOOB(end)) Then
+                Call appDta(path, end)
+            End If
+        End If
+        Call dealloc(incAmt)
+        Call dealloc(curPos)
+    End If
+    Return path
+End Function
+
+
+Function Coord* walkPth(Constant Board *Constant board, Constant Coord* Constant initPos, Constant char rowOfst, Constant char colOfst)
+    Declare Coord* curPos = cpyCord(initPos)
+    Declare Piece* tgtPce
+
+    Do
+        Call add(curPos, rowOfst, colOfst)
+        Set tgtPce = getPce(board, curPos)
+    While (NOT isOOB(curPos)) AND tgtPce->empty
+
+    Return curPos
+End Function
+
+Function Coord* unObPth(Constant Board* Constant board, Constant Coord* Constant initPos, Constant Coord* Constant tgtPos)
+    If initPos == tgtPos
+        Return true
+    End If
+
+    Declare Constant Coord* start
+    Declare Constant Coord* end
+
+    If abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col) then
+        // Diagonal Path
+        If initPos->row > tgtPos->row Then
+            Set start = tgtPos
+            Set end = initPos
+        Else
+            Set start = initPos
+            Set end = tgtPos
+        End If
+
+        If (start->row < end->row) AND (start->col > end->col) Then
+            Set incAmt = newCord(1, -1)
+        Else
+            Set incAmt = newCord(1, 1)
+        End If
+    Else
+        // Vertical/Horizontal Path
+        If lessEq(initPos, tgtPos) Then
+            Set start = initPos
+            Set end = tgtPos
+        Else
+            Set start = tgtPos
+            Set end = initPos
+        End If
+    End If
+
+    Declare Array* path = calcPth(board, initPos, tgtPos, true)
+    Declare bool uobsPth = false
+
+    If NOT path->empty
+        Set uobsPth = isEqual(path->data[0], start) AMD isEqual(path->data[path->utilSze - 1], end)
+    End If
+
+    Call dealloc(path)
+    Return uobsPth
+End Function
+
+Function bool vldMove(Constant Coord* Constant target, Constant Array* Constant vldMves)
+    For size_t i = 0 To vldMves->utilSze
+        If isEqual(vldMves->data[i], target) Then
+            Return true
+        End If
+    End For
+    Return false
+End Function
+
+Function bool vldPcMv(Constant Board* Constant board, Constant Piece* Constant init, Constant Coord* Constant curPos)
+    Declare Piece *tgt = getPce(board, curPos)
+    Return (NOT isOOB(curPos)) AND (tgt->empty OR tgt->pceClr != init->pceClr)
+End Function
+
+Function bool tgtChk(Constant bool intrpse, Constant piece* Constant init, Constant Piece* Constant tgt, Constant PlyrClr Ref player)
+    If intrpse Then
+        Return (NOT tgt->empty) AND init->empty AND tgt->pceClr == player
+    End If
+    Return (NOT tgt->empty) AND tgt->pceClr != player
+End Function

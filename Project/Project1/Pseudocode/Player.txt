@@ -1,0 +1,64 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Function Player* newPlyr(fstream Ref file, Constant bool fromFile, Constant size_t plrNum)
+    Declare Player* player = new Player
+    If frmFile Then
+        Call file.seekp(0, ios::beg)
+        Call read(file, player->nWins)
+        Call read(file, player->nWins)
+        Call read(file, player->name)
+    Else
+        Declare bool vldInpt = true
+        Set player->nWins = 0
+        Set player->nLoss = 0
+        Display "Player ", plrNum, ", enter your name (a-z, A-Z, and space only): "
+        Call getline(cin, player->name)
+        Do
+            Set vldInpt = true
+            For size_t i = 0 To player->name.length()
+                If (NOT (toupper(player->name[i]) >= 65 AND toupper(player->name[i]) <= 90)) AND (player->name[i] != 32) Then
+                    Set vldInpt = false
+                End If
+            End For
+
+            If NOT vldInpt Then
+                Display "Invalid name, enter new name: "
+                Call etline(cin, player->name)
+            End If
+        While NOT vldInpt
+    End If
+    
+    Return player
+End Function
+
+Module toFile(fstream Ref file, Player* player)
+    Call file.seekp(0, ios::beg)
+    Call write(file, player->nWins)
+    Call write(file, player->nLoss)
+    Call write(file, player->name)
+End Module
+
+Module ptPlrSt(Constant Player* Constant plyr1, Constant Player* Constant plyr2)
+    Display "\n\n"
+    Display plyr1->name, "'s Stats: \n"
+    Display "# Wins: ", plyr1->nWins, '\n'
+    Display "# Losses: ", plyr1->nLoss, '\n'
+
+    Display plyr2->name, "'s Stats: \n"
+    Display "# Wins: ", plyr2->nWins, '\n'
+    Display "# Losses: ", plyr2->nLoss, '\n'
+    Display "\n\n"
+End Module
+
+Module dealloc(Player* player)
+    If player != nullptr Then
+        delete player
+    End If
+    Set player = nullptr
+End Module

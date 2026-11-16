@@ -1,0 +1,71 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Function Coord* newCord(Constant char row, Constant char col)
+    Declare Coord *tuple = new Coord
+    Set tuple->row = row
+    Set tuple->col = col
+
+    Return tuple
+End Function
+
+Function Coord* newCord(fstream Ref file)
+    Declare Coord *tuple = new Coord
+    Call file.read(reinterpret_cast<char *>(tuple), sizeof(Coord))
+    Return tuple
+End Function
+
+Module toFile(fstream Ref file)
+    Call file.write(reinterpret_cast<char *>(coord), sizeof(Coord))
+End Module
+
+Function Coord* fmChsNt(Constant string Ref pos)
+    Return newCord(pos[1] - 48, toupper(pos[0]) - 64)
+End Function
+
+Function string toChsNt(Constant Coord* Constant pos)
+    Declare string chsNot = {static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'}
+    Return chsNot
+End Function
+
+Module add(Coord* Constant val, Constant Coord* Constant by)
+    Call add(val, by->row, by->col)
+End Module
+
+Module add(Coord* Constant val, Constant char row, Constant char col)
+    Set val->row += row
+    Set val->col += col
+End Module
+
+Function Coord* cpyCord(Constant Coord* Constant toCopy)
+    Return newCord(toCopy->row, toCopy->col)
+End Function
+
+Module dealloc(Coord* coord)
+    If coord != nullptr Then
+        delete coord
+    End If
+    
+    Set coord = nullptr
+End Module
+
+Function bool lessEq(Constant Coord* Constant a, Constant Coord* Constant b)
+    Return lessEq(a, b->row, b->col)
+End Function
+
+Function bool lessEq(Constant Coord* Constant a, Constant char bRow, Constant char bCol)
+    Return a->row <= bRow && a->col <= bCol
+End Function
+
+Function bool isEqual(Constant Coord* Constant a, Constant Coord* Constant b)
+    Return lessEq(a, b->row, b->col)
+End Function
+
+Function bool isEqual(Constant Coord* Constant a, Constant char bRow, Constant char bCol)
+    Return a->row == bRow && a->col == bCol
+End Function

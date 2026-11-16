@@ -1,0 +1,95 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Function string getFPth(Constant string Ref comp1, Constant string Ref comp2)
+    Declare string Input
+    Input input
+
+    If (input.find('.') == string::npos) AND (input != comp1) AND (input != comp2) Then
+        Call cin.ignore()
+        Return input
+    End If
+
+    Display "Invalid file, enter new filename: "
+    Return getFPth(comp1, comp2)
+End Function
+
+Module opnFile(fstream Ref file, Constant string Ref filePth, Constant bool newFile)
+    If newFile Then
+        Call file.open(filePth, ios::binary | ios::in | ios::out | ios::trunc)
+    Else
+        Call file.open(filePth, ios::binary | ios::in | ios::out)
+        If NOT file.is_open() Then
+            Display "File does not exist. Creating new file.\n"
+            Call file.open(filePth, ios::binary | ios::in | ios::out | ios::trunc)
+        Else
+            Call file.seekg(0, ios::end)
+        End If
+    End If
+End Module
+
+Function char* recast(bool Ref data)
+    Return reinterpret_cast<char *>(&data)
+End Function
+
+Module read(fstream Ref file, bool Ref data)
+    Call file.read(recast(data), sizeof(data))
+End Module
+
+Module write(fstream Ref file, bool data)
+    Call file.write(recast(data), sizeof(data))
+End Module
+
+Function char* recast(PlyrClr Ref data)
+    Return reinterpret_cast<char *>(&data)
+End Function
+
+Module read(fstream Ref file, PlyrClr Ref data)
+    Call file.read(recast(data), sizeof(data))
+End Module
+
+Module write(fstream Ref file, PlyrClr data)
+    Call file.write(recast(data), sizeof(data))
+End Module
+
+Function char* recast(unsigned short Ref data)
+    Return reinterpret_cast<char *>(&data)
+End Function
+
+Module read(fstream Ref file, unsigned short Ref data)
+    Call file.read(recast(data), sizeof(data))
+End Module
+
+Module write(fstream Ref file, unsigned short data)
+    Call file.write(recast(data), sizeof(data))
+End Module
+
+Function char* recast(size_t Ref data)
+    Return reinterpret_cast<char *>(&data)
+End Function
+
+Module read(fstream Ref file, size_t Ref data)
+    Call file.read(recast(data), sizeof(data))
+End Module
+
+Module write(fstream Ref file, size_t data)
+    Call file.write(recast(data), sizeof(data))
+End Module
+
+Module read(fstream Ref file, string Ref data)
+    Declare size_t nameLen
+    Call read(file, nameLen)
+    Call data.resize(nameLen)
+    Call file.read(data.data(), nameLen * sizeof(data[0]))
+End Module
+
+Module write(fstream Ref file, Constant string Ref data)
+    Declare size_t nameLen = data.length()
+    Call write(file, nameLen)
+    Call file.write(data.data(), nameLen * sizeof(data[0]))
+End Module

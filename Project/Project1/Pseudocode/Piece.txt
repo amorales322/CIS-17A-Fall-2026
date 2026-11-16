@@ -1,0 +1,222 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Function Piece *newPce(Constant PlyrClr pceClr, Constant PieceID pieceID)
+    Declare Piece* piece = new Piece
+    If pceClr == PlyrClr::NONE Then
+        Set piece->empty = true
+        Set piece->pceClr = PlyrClr::NONE
+        Set piece->pieceID = PieceID::EMPTY
+    Else
+        Set piece->empty = false
+        Set piece->pceClr = pceClr
+        Set piece->pieceID = pieceID
+    End If
+    Set piece->fstMove = true
+
+    Return piece
+End Function
+
+Function Piece* newPce(fstream Ref file)
+    Declare Piece* piece = new Piece
+    Call file.read(reinterpret_cast<char *>(piece), sizeof(Piece))
+    Return piece
+End Function
+
+Module toFile(fstream Ref gmeFile, Piece* piece)
+    Call gmeFile.write(reinterpret_cast<char *>(piece), sizeof(Piece))
+End Module
+
+Module pmtePce(Piece* Constant piece)
+    Declare string usrChce
+    Display "Your pawn is able to promote! Which piece would you like to promote it with: "
+    Display "1. Queen\n"
+    Display "2. Rook\n"
+    Display "3. Knight\n"
+    Display "4. Bishop\n"
+
+    Display "Enter Option: "
+    Input usrChce
+    While (usrChce != "Queen") AND (usrChce != "Rook") AND (usrChce != "Knight") AND (usrChce != "Bishop")
+        Display "Invalid choice, enter new choice: "
+        Input usrChce
+    End While
+
+    Set piece->fstMove = false
+    If usrChce == "Queen" Then
+        Set piece->pieceID = PieceID::QUEEN
+    Else If usrChce == "Rook" Then
+        Set piece->pieceID = PieceID::ROOK
+    Else If usrChce == "Knight" Then
+        Set piece->pieceID = PieceID::KNIGHT
+    Else If usrChce == "Bishop" Then
+        Set piece->pieceID = PieceID::BISHOP
+    End If
+End Module
+
+Module dealloc(Piece* piece)
+    If piece != nullptr Then
+        delete piece
+    End If
+    Set piece = nullptr
+End Module
+
+Module drwKing(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select Row
+        Case 0:
+            Call drClmRw(".::.", light)
+        Case 1:
+            Call drClmRw("_::_", light)
+        Case 2:
+            Call drClmRw("/", "\\", 4, light, '_')
+        Case 3:
+            Call drClmRw("\\", "/", 6, light, player)
+        Case 4:
+            Call drClmRw("\\", "/", 4, light, player, '_')
+        Case 5:
+            Call drClmRw("(", ")", 4, light, '_')
+        Case 6:
+            Call drClmRw("|", "|", 2, light, player)
+        Case 7:
+            Call drClmRw("(", ")", 2, light, player, '_')
+        Case 8:
+            Call drClmRw("/", "\\", 4, light, player)
+        Case 9:
+            Call drClmRw("(", ")", 6, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 8, light, player, '_')
+        Case 11:
+            Call drClmRw("/", "\\", 8, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
+
+Module drwQuen(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select row
+        Case 1:
+            Call drClmRw("_()_", light)
+        Case 2:
+            Call drClmRw("_/____\\_", light)
+        Case 3:
+            Call drClmRw("\\", "/", 6, light, player)
+        Case 4:
+            Call drClmRw("\\", "/", 4, light, player, '_')
+        Case 5:
+            Call drClmRw("(", ")", 4, light, '_')
+        Case 6:
+            Call drClmRw("|", "|", 2, light, player)
+        Case 7:
+            Call drClmRw("(", ")", 2, light, player, '_')
+        Case 8:
+            Call drClmRw("/", "\\", 4, light, player)
+        Case 9:
+            Call drClmRw("(", ")", 6, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 8, light, player, '_')
+        Case 11:
+            Call rClmRw("/", "\\", 6, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
+
+Module drwRook(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select row
+        Case 3:
+            Call drClmRw("_  _  _", light)
+        Case 4:
+            Call drClmRw(player == PlyrClr::WHITE ? "|#||#||#|" : "| || || |", light)
+        Case 5:
+            Call drClmRw("|", "|", 7, light, player, '_')
+        Case 6:
+            Call drClmRw(player == PlyrClr::WHITE ? "\\## " : "\\__ ", " /", 3, light, player, '_')
+        Case 7:
+        Case 9:
+            Call drClmRw("|", player == PlyrClr::WHITE ? "|#|" : "| |", 3, light, player, '_')
+        Case 8:
+            Call drClmRw(player == PlyrClr::WHITE ? "|#|" : "| |", "|", 3, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 7, light, player, '_')
+        Case 11:
+            Call drClmRw("/", "\\", 7, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
+
+Module drwBshp(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select row
+        Case 2:
+            Call drClmRw("_O", light)
+        Case 3:
+            Call drClmRw("/", "//\\", 1, light, player)
+        Case 4:
+            Call drClmRw("{", "}", 5, light, player, '_')
+        Case 5:
+            Call drClmRw("\\", "/", 3, light, '_')
+        Case 6:
+            Call drClmRw("(", ")", 3, light, player, '_')
+        Case 7:
+            Call drClmRw("|", "|", 1, light, player)
+        Case 8:
+            Call drClmRw("/", "\\", 3, light, player)
+        Case 9:
+            Call drClmRw("(", ")", 5, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 7, light, player, '_')
+        Case 11:
+            Call drClmRw("/", "\\", 7, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
+
+Module drwKnit(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select Row
+        Case 3:
+            Call drClmRw("^^__", light)
+        Case 4:
+            Call drClmRw(" /", " _ \\_", 1, light, player)
+        Case 5:
+            Call drClmRw("<|", "__<", 4, light, player)
+        Case 6:
+            Call drClmRw("<|", "\\  ", 4, light, player)
+        Case 7:
+            Call drClmRw("<|", "\\ ", 5, light, player)
+        Case 8:
+            Call drClmRw("<|", "\\ ", 6, light, player)
+        Case 9:
+            Call drClmRw("_|", "|_", 4, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 8, light, player, '_')
+        Case 11:
+            Call drClmRw("/", "\\", 8, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
+
+Module drwPawn(Constant bool light, Constant size_t row, Constant PlyrClr Ref player)
+    Select row
+        Case 6:
+            Call drClmRw("_", light)
+        Case 7:
+            Call drClmRw("(", ")", 1, light, player, '_')
+        Case 8:
+            Call drClmRw("(", ")", 3, light, player, '_')
+        Case 9:
+            Call drClmRw("_|", "|_", 1, light, player, '_')
+        Case 10:
+            Call drClmRw("(", ")", 5, light, player, '_')
+        Case 11:
+            Call drClmRw("/", "\\", 5, light, player, '_')
+        Default:
+            Call drwBlRw(light)
+    End Select
+End Module
