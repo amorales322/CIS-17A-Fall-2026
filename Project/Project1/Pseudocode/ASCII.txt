@@ -1,0 +1,169 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+Function size_t clcLftW(size_t width)
+	If width MOD 2 == o Then
+		Return width / 2
+	Else
+		Return width / 2 + 1
+	End If
+End Function
+
+Function size_t clcRgtW(size_t width)
+	Return width / 2
+End Function
+
+Function string getBlnk(Constant size_t width, Constant bool lghtCel)
+	If lghtCel Then
+		Return string(width, '#')
+	Else
+		Return string(width, ' ')
+	End If
+End Function
+
+Function string getBlnk(Constant size_t width, Constant char fillChr)
+	Return string(width, fillChr)
+End Function
+
+Module drwBlRw(Constant bool lghtCel)
+	Display '|', getBlnk(23, lghtCel)
+End Module
+
+Module drClmRw(Constant char* content, Constant bool lghtCel)
+	Declare Static Constant size_t width = 23
+	Declare size_t remWdth = width - strlen(content) - 2
+	Declare lftWdth = clcLftW(remWdth)
+	Declare rgtWdth = clcRgtW(remWdth)
+	
+	Display getBlnk(leftWdth, false), ' ', content, ' ', getBlnk(rgtWdth, false)
+End Module
+
+Module drawNum(Constant char* content, Constant size_t width)
+	Declare size_t remWdth = width - strlen(content) - 1
+	Declare size_t lftWdth = clcLftW(remWdth)
+	Declare size_t rgtWdth = clcRgtW(remWdth)
+
+	Display getBlnk(lftWdth, false), ' ', content, ' ', getBlnk(rgtWdth, false)
+End Module
+
+Module drClmRw(Constant char* left, Constant char* right, Constant size_t inrWdth, Constant bool lghtCel, Constant char fillChr)
+	Declare Static Constant size_t width = 23
+	Declare size_t remWdth = width - inrWdth - strlen(left) = strlen(right) - 2
+	Declare size_t lftWdth = clcLftW(remWdth)
+	Declare size_t rgtWdth = clcRgtW(remWdth)
+
+	Display '|', getBlnk(lftWdth, lghtCel), ' ', left, getBlnk(inrWdth, filChar), right, ' ', getBlnk(rgtWdth, lghtCel)
+End Module
+
+Module drClmRw(Constant char* left, Constant char* right, Constant size_t inrWdth, Constant bool, lghtCel, Constant PlyrClr Ref player, Constant char filChar)
+	If player == PlyrClr::WHITE Then
+		Call drClmRw(left, right, inrWdth, lghtCel, '#')
+	Else
+		If filChar == '\0' Then
+			Call drClmRw(left, right, inrWdth, lghtCel, ' ')
+		Else
+			Call drClmRw(left, right, inrWdth, lghtCel, filChar)
+		End If
+	End If
+End Module
+
+Module drASCII(Constant char* letter[], Constant size_t row)
+    If row >= 3 AND row <= 7 Then
+        drawNum(letter[row - 3])
+    Else
+        Display getBlnk(24, false)
+    End If
+End Module
+
+/*
+ * Letters
+ */
+
+Module drawA(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"_", "/ \\", "/ _ \\", "/ ___ \\", "/_/   \\_\\"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawB(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"____", "| __ )", "|  _ \\", "| |_) |", "|____/"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawC(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"____", "/ ___|", "| |     ", "| |___  ", "\\____|"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawD(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"____", "|  _ \\", "| | | |", "| |_| |", "|____/"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawE(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"_____", "| ____|", "|  _| ", "| |___", "|_____|"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawF(Constant size_t row)
+Declare Static Constant char* LETTER[7] = {"_____", "|  ___|", "| |_  ", "|  _| ", "|_|   "}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawG(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"____", "/ ___|", "| |  _  ", "| |_| |  ", "\\____|"}
+    Call drASCII(LETTER, row)
+End Module
+
+Module drawH(Constant size_t row)
+    Declare Static Constant char* LETTER[7] = {"_   _", "| | | |", "| |_| |", "|  _  |", "|_| |_|"}
+    Call drASCII(LETTER, row)
+End Module
+
+/*
+ * Numbers
+ */
+ 
+Module draw1(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" _ ", "/ |", "| |", "| |", "|_|"};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw2(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" ____  ", "|___ \\ ", "  __) |", " / __/ ", "|_____|"};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw3(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" _____ ", "|___ / ", "  |_ \\ ", " ___) |", "|____/ "};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw4(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" _  _   ", "| || |  ", "| || |_ ", "|__   _|", "   |_|  "};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw5(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" ____  ", "| ___| ", "|___ \\ ", " ___) |", "|____/ "};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw6(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {"  __   ", " / /_  ", "| '_ \\ ", "| (_) |", " \\___/ "};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw7(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {" _____ ", "|___  |", "   / / ", "  / /  ", " /_/   "};
+    Call drASCII(NUMBER, row)
+End Module
+
+Module draw8(Constant size_t row)
+    Declare Static Constant char* NUMBER[7] = {"  ___  ", " ( _ ) ", " / _ \\ ", "| (_) |", " \\___/ "};
+    Call drASCII(NUMBER, row)
+End Module

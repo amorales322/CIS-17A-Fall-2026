@@ -1,0 +1,187 @@
+// I learned this pseudocode format from another class, he used the Gaddis 5th edition book and this is where its from
+// I just modified it slightly to include pointers, the new and delete keywords, and the different data types
+// Another modification I made is to make For loop end bounds exclusive
+
+// Pointers -> *
+// new keyword -> new
+// delete keyword -> delete
+
+
+Function Array* newArry(Constant size_t size = 15)
+	Declare Array* array = new Array;
+	Set array->size = size
+	Set array->utilSze = 0
+	Set array->data = new Coord*[size]
+	For size_t i = 0 To size
+		Set array->data[i] = nullptr
+	End For
+	Set array->empty = true
+
+	Return array
+End Function
+
+Module pntArry(Constant Array* Constant array)
+	If (NOT array->empty) Then
+		For size_t i = 0 to array->utilSze
+			// Uses a ternary operator inside the code
+			If i < array->utilSze - 1 Then
+				Display toChsNt(array->data[i]), " "
+			Else
+				Display toChsNt(array->data[i]), ""
+			End If
+		End For
+	Else
+		Display "None"
+	End If
+End Module
+
+Module cpyArry(Array* Constant to, Constant Array* Constant from)
+	If (NOT from->empty) Then
+		Call appDta(to, from)
+	End If
+End Module
+
+Module appDta(Array* Contant array, Constant Coord* Constant coord)
+	If search(array, coord) == -1 Then
+		If array->utilSze >= array->size Then
+			Call resize(array)
+		End If
+	
+	Set array->data[array->utilSze++] = cpyCord(coord)
+	Set array->empty = false
+	End If
+End Module
+
+Module appDta(Array* Constant to, Constant Array* Constant from)
+	If (NOT from->empty) Then
+		Declare size_t fnlSize = to->utilSze + from->utilSze
+
+		If to->size < fnlSize Then
+			Call resize(to, from)
+		End If
+
+		For unsigned int i = to->utilSze to fnlSize
+			Set to->data[i] = copyCord(from->data[i - to->utilSze])
+		End For
+
+		Set to->utilSze = fnlSize
+		Set to->empty = false
+	End If
+End Module
+
+Module pop(Array* Constant array, Constant int idx = -1)
+	If (NOT array->empty) Then
+		If idx < 0 OR idx == array->utilSze - 1 Then
+			Call dealloc(array->data[--array->utilSze])
+			Set array->data[array->utilSze] = nullptr
+		Else If idx < array->utilSze Then
+			Call dealloc(array->data[idx])
+			Set array->data[idx] = nullptr
+
+			For size_t i = static_cast<size_t>(idx) To array->utilSze
+				Set array->data[i] = array->data[i + 1]
+			End For
+			
+			Set array->utilSze = array->utilSze - 1
+
+			For size_t i = array->utilSze to array->size
+				Set array->data[i] = nullptr
+			End For
+		End If
+	
+		If array->utilSze == 0 Then
+			Set array->empty = true
+		End If
+	End If
+End Module
+
+Module resize(Array* array, Constant int newCap = -1)
+	If newCap >= 1 Then
+		If newCap == -1 Then
+			Declare Coord** newData = new Coord*[++array->size]
+			For size_t i = 0 To array->utilSze
+				Set newData[i] = array->data[i]
+			End For
+		
+            delete []array->data
+            Set array->data = nullptr
+            Set array->data = newData
+		Else If newCap == 0 Then
+			Call clear(array)
+		Else If newCap < array->size Then
+			Declare Coord** newData = new Coord*[newCap]
+			For size_t i = 0 To newCap
+				Set newData[i] = array->data[i]
+			End For
+
+			For size_t i = static_cast<size_t>(newCap) To array->size
+				Call dealloc(array->data[i])
+				Set array->data[i] = nullptr
+			End For
+
+			Set array->size = newCap
+			delete []array->data
+			Set array->data = nullptr
+			Set array->data = newData
+		Else If newCap > array->size
+			Declare Coord** newData = new Coord*[newCap]
+			For size_t i = 0 To array->utilSze
+				Set newData[i] = array->data[i]
+			End For
+
+			For size_t i = array->utilSze To newCap
+				Set newData[i] = nullptr
+			End For
+
+			Set array->size = newCap
+			delete []array->data
+			Set array->data = nullptr
+			Set array->data = newData
+		End If
+
+		If array->utilSze == 0 Then
+			Set array->empty = true
+		End If
+	End If
+End Module
+
+Module clear(Array* array)
+	For int i = 0 To array->size
+		Call dealloc(array->data[i]
+		Set array->data[i] = nullptr
+	End For
+	Set array->utilSze = 0
+	Set array->empty = true
+End Module
+
+Module shrink(Array* Constant array)
+	Call resize(array, array->utilSze)
+End Module
+
+Module dealloc(Array* array)
+	If array != nullptr Then
+		If array->data != nullptr Then
+			For size_t i = 0 to array->size
+				dealloc(array->data[i])
+				Set array->data[i] = nullptr
+			End For
+			delete []array->data
+			Set array->data = nullptr
+		End If
+		
+		delete array
+		Set array = nullptr
+	End If
+End Module
+
+Function int search(Constant Array* Constant array, Constant Coord* Constant target)
+	If (NOT array->empty) Then
+		For size_t i = 0 To array->utilSze
+			If isEqual(array->data[i], target) Then
+				Return i
+			End If
+		End For
+	End If
+	
+	Return -1
+End Function
