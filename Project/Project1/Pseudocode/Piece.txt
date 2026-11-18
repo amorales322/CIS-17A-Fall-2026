@@ -34,7 +34,7 @@ End Module
 
 Module pmtePce(Piece* Constant piece)
     Declare string usrChce
-    Display "Your pawn is able to promote! Which piece would you like to promote it with: "
+    Display "Your pawn is able to promote! Which piece would you like to promote it with:\n"
     Display "1. Queen\n"
     Display "2. Rook\n"
     Display "3. Knight\n"

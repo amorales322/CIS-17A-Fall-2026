@@ -1671,7 +1671,7 @@ void toFile(fstream &gmeFile, Piece *piece) {
 
 void pmtePce(Piece *const piece) {
     string usrChce;
-    cout << "Your pawn is able to promote! Which piece would you like to promote it with: ";
+    cout << "Your pawn is able to promote! Which piece would you like to promote it with\n";
     cout << "1. Queen\n";
     cout << "2. Rook\n";
     cout << "3. Knight\n";
