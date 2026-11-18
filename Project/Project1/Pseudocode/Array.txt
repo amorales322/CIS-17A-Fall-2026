@@ -60,7 +60,7 @@ Module appDta(Array* Constant to, Constant Array* Constant from)
 			Call resize(to, from)
 		End If
 
-		For unsigned int i = to->utilSze to fnlSize
+		For size_t i = to->utilSze to fnlSize
 			Set to->data[i] = copyCord(from->data[i - to->utilSze])
 		End For
 
@@ -146,7 +146,7 @@ Module resize(Array* array, Constant int newCap = -1)
 End Module
 
 Module clear(Array* array)
-	For int i = 0 To array->size
+	For size_t i = 0 To array->size
 		Call dealloc(array->data[i]
 		Set array->data[i] = nullptr
 	End For
@@ -154,17 +154,10 @@ Module clear(Array* array)
 	Set array->empty = true
 End Module
 
-Module shrink(Array* Constant array)
-	Call resize(array, array->utilSze)
-End Module
-
 Module dealloc(Array* array)
 	If array != nullptr Then
 		If array->data != nullptr Then
-			For size_t i = 0 to array->size
-				dealloc(array->data[i])
-				Set array->data[i] = nullptr
-			End For
+			Call dealloc(array)
 			delete []array->data
 			Set array->data = nullptr
 		End If

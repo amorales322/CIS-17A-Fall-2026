@@ -44,8 +44,6 @@ void resize(Array *, int = -1);
 
 void clear(Array *);
 
-void shrink(Array *);
-
 void dealloc(Array *);
 
 

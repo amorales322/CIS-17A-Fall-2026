@@ -53,7 +53,7 @@ Module lineMov(Constant Board* Constant board, Constant bool tgtMode, Constant b
                     End If
                 End If
             Else
-                If vldPcMv(board, getPce(board, initPos), curPos) Then
+                If vldPcMv(board, initPce, curPos) Then
                     Call appDta(data, curPos)
                 End If
             End If
@@ -82,7 +82,7 @@ Module diagMov(Constant Board* Constant board, Constant bool tgtMode, Constant b
                     End If
                 End If
             Else
-                If vldPcMv(board, getPce(board, initPos), curPos) Then
+                If vldPcMv(board, initPce, curPos) Then
                     appDta(data, curPos)
                 End If
             End If
@@ -267,16 +267,13 @@ Function Bool pceIntr(Constant Board* Constant board, Constant Coord* Constant k
 End Function
 
 Function bool sfeSpce(Constant Board* Constant board, Constant Coord* Constant tgtPos, Constant bool ipseMde, Array* Constant data, Constant PlyrClr Ref player)
-    Declare bool isSafe
-
     Call kingMov(board, true, tgtPos, data, player)
     Call lineMov(board, true, ipseMde, tgtPos, data, player)
     Call diagMov(board, true, ipseMde, tgtPos, data, player)
     Call knitMov(board, true, ipseMde, tgtPos, data, player)
     Call pawnMov(board, true, ipseMde, tgtPos, data, player)
 
-    Set isSafe = data->empty
-    Return isSafe
+    Return data->empty
 End Function
 
 Function bool sfeSpce(Constant Board* Constant board, Constant Coord* Constant tgtPos, Constant PlyrClr Ref player)

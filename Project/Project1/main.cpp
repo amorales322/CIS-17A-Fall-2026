@@ -328,13 +328,13 @@ int main(int argc, char **argv) {
             case PlyrClr::WHITE:
                 cout << board->white->name << " has requested to end the game, would you like to end the game " << board->black->name << " (Y or N)?: ";
                 inpt = !getOpt();
-                if (inpt == true)
+                if (inpt)
                     board->exitGme = PlyrClr::NONE;
                 break;
             case PlyrClr::BLACK:
                 cout << board->black->name << " has requested to end the game, would you like to end the game " << board->white->name << " (Y or N)?: ";
                 inpt = !getOpt();
-                if (inpt == true)
+                if (inpt)
                     board->exitGme = PlyrClr::NONE;
                 break;
         }
@@ -404,7 +404,7 @@ void appDta(Array *const to, const Array *const from) {
         size_t fnlSize{to->utilSze + from->utilSze};
         if (to->size < fnlSize)
             resize(to, fnlSize);
-        for (unsigned int i{to->utilSze}; i < fnlSize; i++)
+        for (size_t i{to->utilSze}; i < fnlSize; i++)
             to->data[i] = cpyCord(from->data[i - to->utilSze]);
         to->utilSze = fnlSize;
         to->empty = false;
@@ -476,7 +476,7 @@ void resize(Array *const array, const int newCap) {
 }
 
 void clear(Array *const array) {
-    for (int i{0}; i < array->size; i++) {
+    for (size_t i{0}; i < array->size; i++) {
         dealloc(array->data[i]);
         array->data[i] = nullptr;
     }
@@ -484,17 +484,10 @@ void clear(Array *const array) {
     array->empty = true;
 }
 
-void shrink(Array *const array) {
-    resize(array, array->utilSze);
-}
-
 void dealloc(Array *array) {
     if (array != nullptr) {
         if (array->data != nullptr) {
-            for (size_t i{0}; i < array->size; i++) {
-                dealloc(array->data[i]);
-                array->data[i] = nullptr;
-            }
+            clear(array);
             delete []array->data;
             array->data = nullptr;
         }
@@ -700,9 +693,9 @@ Board *newBord(fstream &gmeFile, const bool frmFile) {
         board->board = new Piece **[board->VERTSZE];
         for (size_t row{0}; row < board->VERTSZE; row++) {
             board->board[row] = new Piece *[board->HORZNSZ];
-            for (size_t col{0}; col < board->HORZNSZ; col++) {
+            for (size_t col{0}; col < board->HORZNSZ; col++)
                 board->board[row][col] = newPce(gmeFile);
-            }
+
         }
         board->wKngPos = newCord(gmeFile);
         board->bKngPos = newCord(gmeFile);
@@ -730,7 +723,7 @@ void toFile(fstream &gmeFile, fstream &plyr1, fstream &plyr2, const Board *const
     write(gmeFile, board->deadPos);
 
     for (size_t row{0}; row < board->VERTSZE; row++)
-        for (size_t col{0}; col < board->VERTSZE; col++)
+        for (size_t col{0}; col < board->HORZNSZ; col++)
             toFile(gmeFile, board->board[row][col]);
 
     toFile(gmeFile, board->wKngPos);
@@ -1084,8 +1077,7 @@ Coord *fmChsNt(const string &pos) {
 }
 
 string toChsNt(const Coord *const pos) {
-    string chsNot{static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'};
-    return chsNot;
+    return string{static_cast<char>(pos->col + 64), static_cast<char>(pos->row + 48), '\0'};
 }
 
 void add(Coord *const val, const Coord *const by) {
@@ -1263,7 +1255,7 @@ void lineMov(const Board *const board, const bool tgtMode, const bool intrpse, c
                 }
             } else {
                 // Not in target mode: checking if the piece can move to the target location
-                if (vldPcMv(board, getPce(board, initPos), curPos))
+                if (vldPcMv(board, initPce, curPos))
                     appDta(data, curPos);
             }
         }
@@ -1292,7 +1284,7 @@ void diagMov(const Board *const board, const bool tgtMode, const bool intrpse, c
                 }
             } else {
                 // Not in target mode: checking if the piece can move to the final position
-                if (vldPcMv(board, getPce(board, initPos), curPos))
+                if (vldPcMv(board, initPce, curPos))
                     appDta(data, curPos);
             }
         }
@@ -1308,6 +1300,7 @@ void knitMov(const Board *const board, const bool tgtMode, const bool intrpse, c
     for (size_t i{0}; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
         Coord *curPos{cpyCord(initPos)};
         add(curPos, &offsets[i]);
+
         if (!isOOB(curPos)) {
             Piece *tgtPce{getPce(board, curPos)};
             if (tgtMode) {
@@ -1348,6 +1341,7 @@ void pawnMov(const Board *const board, const bool tgtMode, const bool intrpse, c
         for (size_t i{start}; i < end; i++) {
             curPos = cpyCord(initPos);
             add(curPos, &offsets[i]);
+
             if (!isOOB(curPos)) {
                 Piece *tgtPce{getPce(board, curPos)};
                 if (tgtChk(intrpse, initPce, tgtPce, player)) {
@@ -1438,16 +1432,13 @@ bool pceIntr(const Board *const board, const Coord *const kingPos, const Coord *
 }
 
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const bool ipseMde, Array *const data, const PlyrClr &player) {
-    bool isSafe;
-
     kingMov(board, true, tgtPos, data, player);
     lineMov(board, true, ipseMde, tgtPos, data, player);
     diagMov(board, true, ipseMde, tgtPos, data, player);
     knitMov(board, true, ipseMde, tgtPos, data, player);
     pawnMov(board, true, ipseMde, tgtPos, data, player);
 
-    isSafe = data->empty;
-    return isSafe;
+    return data->empty;
 }
 
 bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr &player) {
@@ -1459,7 +1450,6 @@ bool sfeSpce(const Board *const board, const Coord *const tgtPos, const PlyrClr 
 
 Array *sfeMves(const Board *const board, const Coord *const kingPos, Array *const whoChk) {
     Array *vldMves{newArry()};
-
     Piece *kingPce{getPce(board, kingPos)};
 
     // Determines the locations of the pieces that are putting the king in check
@@ -1551,7 +1541,7 @@ Array *calcPth(const Board *const board, const Coord *const initPos, const Coord
             // Horizontal Path
             start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
             end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
-            incAmt = newCord(0, 1);
+                incAmt = newCord(0, 1);
         } else if (initPos->col == tgtPos->col) {
             // Vertical Path
             start = lessEq(initPos, tgtPos) ? initPos : tgtPos;
@@ -1597,8 +1587,8 @@ bool unObPth(const Board *const board, const Coord *const initPos, const Coord *
     if (initPos == tgtPos)
         return true;
 
-    const Coord *start{};
-    const Coord *end{};
+    const Coord *start;
+    const Coord *end;
 
     if (abs(initPos->row - tgtPos->row) == abs(initPos->col - tgtPos->col)) {
         // Diagonal Path
@@ -1610,7 +1600,7 @@ bool unObPth(const Board *const board, const Coord *const initPos, const Coord *
         end = lessEq(initPos, tgtPos) ? tgtPos : initPos;
     }
 
-    Array *path = calcPth(board, initPos, tgtPos, true);
+    Array *path{calcPth(board, initPos, tgtPos, true)};
     bool uobsPth{false};
 
     if (!path->empty)
@@ -1930,10 +1920,10 @@ Player *newPlyr(fstream &file, const bool frmFile, const size_t plrNum) {
     if (frmFile) {
         file.seekp(0, ios::beg);
         read(file, player->nWins);
-        read(file, player->nWins);
+        read(file, player->nLoss);
         read(file, player->name);
     } else {
-        bool vldInpt{true};
+        bool vldInpt;
         player->nWins = 0;
         player->nLoss = 0;
         cout << "Player " << plrNum << ", enter your name (a-z, A-Z, and space only): ";

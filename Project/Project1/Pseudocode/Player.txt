@@ -11,10 +11,10 @@ Function Player* newPlyr(fstream Ref file, Constant bool fromFile, Constant size
     If frmFile Then
         Call file.seekp(0, ios::beg)
         Call read(file, player->nWins)
-        Call read(file, player->nWins)
+        Call read(file, player->nLoss)
         Call read(file, player->name)
     Else
-        Declare bool vldInpt = true
+        Declare bool vldInpt
         Set player->nWins = 0
         Set player->nLoss = 0
         Display "Player ", plrNum, ", enter your name (a-z, A-Z, and space only): "
